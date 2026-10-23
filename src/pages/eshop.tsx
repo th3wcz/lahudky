@@ -338,6 +338,35 @@ export default function Eshop() {
         </div>
       </header>
 
+      {/* E-shop introduction */}
+      <section className="overflow-hidden border-b border-border bg-[#edf2e8] px-6 py-8 text-foreground md:py-10">
+        <div className="container mx-auto max-w-6xl text-center">
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
+            Čerstvé lahůdky z Teplic
+          </motion.p>
+          <motion.h2 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
+            className="mb-3 font-serif text-3xl font-bold text-foreground md:text-4xl">
+            Objednejte si lahůdky online
+          </motion.h2>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
+            className="mx-auto max-w-xl text-foreground/70">
+            Vyberte si z naší nabídky a odešlete poptávku. Potvrdíme dostupnost a domluvíme se na vyzvednutí nebo dovozu.
+          </motion.p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
+            className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70">
+            <Phone size={14} className="text-primary" />
+            <span>Dotazy: <a href="tel:+420724708277" className="font-semibold text-primary hover:underline">+420 724 708 277</a></span>
+          </motion.div>
+          <p className="mx-auto mt-5 max-w-2xl rounded-lg border border-primary/15 bg-white/70 px-4 py-3 text-sm font-semibold text-foreground">
+            Objednávku prosíme zadat nejméně 48 hodin před zvoleným termínem. Každou připravujeme čerstvě.
+          </p>
+          <p className="mx-auto mt-3 max-w-2xl text-xs text-foreground/55">
+            Fotografie jsou ilustrační. Skutečný vzhled produktu se může mírně lišit.
+          </p>
+        </div>
+      </section>
+
       {showCategoryMenu ? (
         <main className="container mx-auto px-6 py-8 md:px-12 md:py-10">
           <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
