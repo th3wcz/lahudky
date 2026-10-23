@@ -3,7 +3,7 @@
   "outputDirectory": "dist/public",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://TVOJE-RAILWAY-URL.up.railway.app/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://lahudky.onrender.com/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
