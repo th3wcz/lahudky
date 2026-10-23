@@ -1,0 +1,563 @@
+001. Bageta – školní (bageta-skolni)
+baguette cut open and generously filled with ham, Edam cheese, lettuce and tomato, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+002. Bageta – svačinková (bageta-svacinkova)
+baguette cut open and generously filled with ham, cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+003. Bageta – s čevapčiči (bageta-cevapcici)
+baguette cut open and generously filled with grilled cevapcici sausage, onion and sauce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+004. Bageta – staročeská (bageta-starocesk)
+baguette cut open and generously filled with smoked ham, Czech salami and pickles, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+005. Bageta – sýrová (eidam) (bageta-syrova-eidam)
+baguette cut open and generously filled with sliced Edam cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+006. Bageta – sýrová mlska (eidam, hermelín) (bageta-syrova-mlska)
+baguette cut open and generously filled with Edam and Czech Camembert cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+007. Bageta – šunková (bageta-sunkova)
+baguette cut open and generously filled with sliced ham, lettuce and tomato, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+008. Bageta – kuřecí (bageta-kureci)
+baguette cut open and generously filled with roast chicken, lettuce and dressing, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+009. Bageta – lahůdková (bageta-lahudkova)
+baguette cut open and generously filled with Czech deli salad, ham and egg, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+010. Bageta – tuňáková (bageta-tunakova)
+baguette cut open and generously filled with tuna salad and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+011. Bageta – s uzeninou (bageta-uzenina)
+baguette cut open and generously filled with assorted Czech cold cuts and pickles, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+012. Tortilla – kuřecí (tortilla-kureci)
+tortilla wrap cut open and filled with seasoned chicken, lettuce and vegetables, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+013. Tortilla – šunková se sýrem (tortilla-sunkova-syr)
+tortilla wrap cut open and filled with ham and melted cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+014. Palačinka – marmeládová (palacinka-marmelada)
+crepe folded around fruit jam, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+015. Palačinka – tvarohová (palacinka-tvaroh)
+crepe folded around sweet quark cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+016. Palačinka – s nugetou (palacinka-nugeta)
+crepe folded around chocolate hazelnut spread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+017. Croissant s lososem (croissant-losos)
+croissant cut open and filled with smoked salmon and cream cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+018. MINI croissant kuřecí, tuňák, hermelín (mini-croissant-mix)
+croissant cut open and filled with three mini croissants with chicken, tuna and Camembert fillings, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+019. MINI croissant (mini-croissant)
+croissant cut open and filled with savory deli filling, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+020. MINI club sendvič (mini-club-sendvic)
+sandwich cut open and generously filled with ham, chicken, cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+021. Žitný chléb s červenou řepou (zitny-chleb-cervena-repa)
+open-faced rye bread topped with beetroot spread and fresh greens, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+022. Žitný chléb s mozzarellou (zitny-chleb-mozzarella)
+open-faced rye bread topped with mozzarella, tomato and basil, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+023. Žitný chléb s avokádem (zitny-chleb-avokado)
+open-faced rye bread topped with smashed avocado and radish, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+024. Žitný chléb s ředkvičkou (zitny-chleb-redkvicka)
+open-faced rye bread topped with radish spread and sliced radishes, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+025. Vaječná omeleta v housce (vajecna-omeleta-houska)
+bun cut open and filled with egg omelet and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+026. Míchaná vejce v housce (michana-vejce-houska)
+bun cut open and filled with scrambled eggs and chives, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+027. Volské oko v housce (volske-oko-houska)
+bun cut open and filled with fried egg and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+028. Zapečený toust se šunkou a sýrem (zapeceny-toust)
+ham and melted cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+029. Bagel plněný šunka, sýr, hermelín (bagel-plneny)
+bun cut open and filled with ham, cheese and Czech Camembert, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+030. Francouzská bageta s kuřecími stripsy (fr-bageta-strips)
+baguette cut open and generously filled with crispy chicken strips and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+031. Francouzská bageta s kuřecím steakem (fr-bageta-steak)
+baguette cut open and generously filled with grilled chicken steak and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+032. Francouzská bageta s moravským uzeným (fr-bageta-uzene)
+baguette cut open and generously filled with Moravian smoked pork and pickles, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+033. Chléb – smaženka (chleb-smazenka)
+open-faced bread topped with a fried egg on toasted bread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+034. Topinka s lutenicí a sýrem (topinka-lutenice-syr)
+open-faced bread topped with Czech lecho relish and grated cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+035. Chléb kombinovaný (sýr, šunka, herkules) (chleb-kombinovany)
+open-faced bread topped with cheese, ham and Herkules salami, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+036. Chléb sýrový (chleb-syrovy)
+open-faced bread topped with cheese spread and sliced cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+037. Chléb balkánský (chleb-balkansky)
+open-faced bread topped with Balkan white cheese, tomato and olives, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+038. Chléb šunkový (chleb-sunkovy)
+open-faced bread topped with ham salad and sliced ham, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+039. Chléb anglický (chleb-anglicky)
+open-faced bread topped with English bacon, egg and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+040. Obložené vejce velké (obozene-vejce-velke)
+a halved hard-boiled egg with potato salad and ham garnish, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+041. Aspiková miska (aspikova-miska)
+savory aspic with sliced ham, egg and vegetables set in savory aspic, in a small plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+042. Šunkový aspikový závitek (sunkovy-aspikovy-zavitek)
+ham roll filled with savory aspic and vegetables, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+043. Feferonová hořčice speciální (feferonova-horcice)
+red chili mustard in a small plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+044. Sendvič šunkový (sendvic-sunkovy)
+sandwich cut open and generously filled with sliced ham, cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+045. Sendvič kuřecí (sendvic-kureci)
+sandwich cut open and generously filled with roast chicken, lettuce and dressing, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+046. Sendvič tuňákový (sendvic-tunakovy)
+sandwich cut open and generously filled with tuna salad and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+047. Sendvič speciál (sendvic-special)
+sandwich cut open and generously filled with ham, cheese, egg and fresh vegetables, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+048. Cereální houska se šunkou (cerealni-houska-sunka)
+bun cut open and filled with ham, lettuce and tomato, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+049. Cereální houska se sýrem (cerealni-houska-syr)
+bun cut open and filled with cheese, lettuce and tomato, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+050. Houska se šunkou (houska-sunka)
+bun cut open and filled with ham and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+051. Houska se sýrem (houska-syr)
+bun cut open and filled with cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+052. Croissant šunkový (croissant-sunkovy)
+croissant cut open and filled with ham and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+053. Croissant sýrový (croissant-syrovy)
+croissant cut open and filled with melted cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+054. Croissant mix (croissant-mix)
+croissant cut open and filled with a savory assortment of deli fillings, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+055. Croissant cereální kuřecí (croissant-cerealni-kureci)
+croissant cut open and filled with chicken and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+056. Croissant cereální mix (croissant-cerealni-mix)
+croissant cut open and filled with an assortment of savory deli fillings, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+057. Croissant mozzarella (croissant-mozzarella)
+croissant cut open and filled with mozzarella, tomato and basil, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+058. Croissant proscuto crudo (croissant-prosciutto)
+croissant cut open and filled with prosciutto and fresh greens, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+059. Sekaná v housce (sekana-houska)
+bun cut open and filled with a thick slice of Czech meatloaf and mustard, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+060. Cereální bageta – fit (cerealni-bageta-fit)
+baguette cut open and generously filled with fresh vegetables, cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+061. Cereální bageta – šunková (cerealni-bageta-sunkova)
+baguette cut open and generously filled with ham, cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+062. Cereální bageta – sýrová (cerealni-bageta-syrova)
+baguette cut open and generously filled with Edam cheese and lettuce, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+063. Cereální bageta – kuřecí (cerealni-bageta-kureci)
+baguette cut open and generously filled with chicken, lettuce and dressing, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+064. Salát mrkev s ananasem (salat-mrkev-ananas)
+shredded carrot and pineapple in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+065. Salát celerový (salat-celerovy)
+celeriac and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+066. Salát čínský s houbami (salat-cinsky-houby)
+cabbage, Chinese mushrooms and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+067. Salát zelný s kapií (salat-zelny-kapie)
+white cabbage and red bell pepper in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+068. Salát zelný bílý (salat-zelny-bily)
+shredded white cabbage in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+069. Salát zelný s mrkví (salat-zelny-mrkev)
+white cabbage and carrot in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+070. Salát zelný s okurkou a křenem (salat-zelny-okurka-kren)
+cabbage, cucumber and horseradish in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+071. Salát zelný zeleninový (salat-zelny-zeleninovy)
+cabbage and mixed vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+072. Salát rajčatový (salat-rajcatovy)
+fresh tomatoes and herbs in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+073. Salát lehký těstovinový (salat-lehky-testovinovy)
+light pasta and fresh vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+074. Salát jarní s kukuřicí (salat-jarni-kukurice)
+sweet corn and spring vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+075. Salát těstovinový (salat-testovinovy)
+pasta and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+076. Salát soja pikant (salat-soja-pikant)
+soy vegetables with a spicy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+077. Salát pórkový (salat-porkovy)
+leek and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+078. Salát fazolový (salat-fazolovy)
+beans and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+079. Salát provensálský (salat-provensalsky)
+vegetables and herbs in Provençal style in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+080. Salát z červené řepy (salat-cervena-repa)
+red beetroot in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+081. Salát palivec (salat-palivec)
+spicy vegetables and deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+082. Salát řecký (salat-recky)
+tomato, cucumber, olives and feta cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+083. Salát brokolicový (salat-brokolicovy)
+broccoli and light dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+084. Salát veronský (salat-veronsky)
+pasta, vegetables and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+085. Salát těstovinový s tuňákem (salat-testovinovy-tunak)
+pasta, tuna and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+086. Salát baby (salat-baby)
+mixed baby salad leaves and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+087. Salát kuřecí (salat-kureci)
+chicken and fresh vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+088. Salát šopský (salat-sopsky)
+tomato, cucumber, pepper and white cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+089. Salát čočkový (salat-cockovy)
+lentils and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+090. Salát rýžový s kuřecím masem (salat-ryzovy-kureci)
+rice, chicken and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+091. Salát ovocný (salat-ovocny)
+fresh mixed fruit in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+092. Salát ovocný s jogurtem (salat-ovocny-jogurt)
+fresh mixed fruit with yogurt in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+093. Salát těstovinový se šunkou a sýrem (salat-testovinovy-sunka-syr)
+pasta, ham and cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+094. Salát pohankový (salat-pohankovy)
+buckwheat and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+095. Halušky se zelím (halusky-zelim)
+potato dumplings and cabbage in a serving bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+096. Čínské nudle s kuřecím masem (cinske-nudle-kureci)
+noodles, chicken and vegetables in a serving bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+097. Kuřecí masová čína (kureci-masova-cina)
+chicken and vegetables in savory sauce in a serving bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+098. Salát colesaw (salat-colesaw)
+shredded cabbage and carrot in creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+099. Matjesy (matjesy)
+marinated matjes herring and onion in a serving bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+100. Salát rybí (salat-rybi)
+fish and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+101. Salát bramborový (salat-bramborovy)
+potatoes, pickles, peas and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+102. Salát vlašský (salat-vlassky)
+ham, vegetables and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+103. Salát liberecký (salat-liberecky)
+ham, vegetables and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+104. Salát pochoutkový (salat-pochoutkovy)
+ham, pickles and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+105. Salát rumcajs (salat-rumcajs)
+salami, pickles and spicy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+106. Salát holanský (salat-holansky)
+cheese, ham and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+107. Salát lahůdkový (salat-lahudkovy)
+ham, vegetables and creamy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+108. Salát vajíčkový (salat-vajickovy)
+chopped eggs and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+109. Salát hanácký (salat-hanacky)
+cabbage, beetroot and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+110. Lahůdková majonéza (lahudkova-majoneza)
+thick Czech delicatessen mayonnaise in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+111. Salát alá krab (salat-ala-krab)
+crab sticks, vegetables and creamy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+112. Salát vídeňský bramborový (salat-vidensky-bramborovy)
+potatoes, onion and vinegar dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+113. Salát feferonkový (salat-feferonkovy)
+hot peppers and spicy deli dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+114. Salát volská tlama (salat-volska-tlama)
+beef, pickles and spicy dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+115. Salát mrkvový (salat-mrkvovy)
+shredded carrot and light dressing in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+116. Pomazánka pažitková (pomazanka-pazitkova)
+chives and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+117. Pomazánka pórková (pomazanka-porkova)
+leek and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+118. Pomazánka dudácká (pomazanka-dudacka)
+traditional Czech dudácká cheese spread in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+119. Pomazánka budapešťská (pomazanka-budapestska)
+Hungarian-style paprika and soft cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+120. Pomazánka lutenice (pomazanka-lutenice)
+Czech lecho relish and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+121. Pomazánka z uzeného sýra (pomazanka-uzeny-syr)
+smoked cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+122. Pomazánka pacifik (rybí) (pomazanka-pacifik)
+fish and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+123. Pomazánka topinková (pomazanka-topinkova)
+spicy tomato and garlic in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+124. Pomazánka pastýřská (pomazanka-pastyrska)
+cheese, vegetables and herbs in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+125. Pomazánka česneková se sýrem (pomazanka-cesnekova-syr)
+garlic and cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+126. Pomazánka hermelínová (pomazanka-hermelinova)
+Czech Camembert cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+127. Pomazánka finská (pomazanka-finska)
+egg and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+128. Pomazánka šanovská (pomazanka-sanovska)
+traditional Czech deli cheese spread in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+129. Pomazánka uherská (pomazanka-uherska)
+Hungarian salami and paprika in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+130. Pomazánka ala krab (pomazanka-ala-krab)
+crab sticks and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+131. Pomazánka vajíčková (pomazanka-vajickova)
+chopped eggs and creamy cheese in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+132. Pomazánka svačinková (pomazanka-svacinkova)
+ham, cheese and vegetables in a deli bowl, small serving in a plain white bowl, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+133. Bramborák (bramborak)
+Czech potato pancake, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+134. Kaplický bramborák (kaplicky-bramborak)
+Czech potato pancake with ham and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+135. Hamburger v bramboráku (hamburger-bramborak)
+hamburger patty and vegetables inside a potato pancake, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+136. Hermelín v bramboráku (hermelin-bramborak)
+Czech Camembert cheese inside a potato pancake, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+137. Holandský řízek (holandsky-rizek)
+Czech Dutch-style minced meat and cheese schnitzel, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+138. Karbanátek (karbanatek)
+Czech minced meat patty, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+139. Kapustový karbanátek (kapustovy-karbanatek)
+savoy cabbage patty, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+140. Zeleninový karbanátek (zeleninovy-karbanatek)
+mixed vegetable patty, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+141. Brokolicový karbanátek (brokolicovy-karbanatek)
+broccoli patty, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+142. Pštrosí vejce (pstrosi-vejce)
+Czech Scotch egg with minced meat and boiled egg, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+143. Kuřecí řízek (kureci-rizek)
+breaded chicken schnitzel, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+144. Vepřový řízek (veprovy-rizek)
+breaded pork schnitzel, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+145. Kuřecí medailonky (kureci-medailonky)
+pan-seared chicken medallions, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+146. Čevapčiči (cevapcici)
+grilled cevapcici sausages, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+147. Pangasius (pangasius)
+breaded fried pangasius fish, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+148. Smažený sýr (smazeny-syr)
+breaded fried cheese, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+149. Smažené žampiony (smazene-zampiony)
+breaded fried mushrooms, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+150. Smažený květák (smazeny-kvetak)
+breaded fried cauliflower, one serving on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+151. Obložená mísa mix (1 kg) (miska-mix)
+assorted Czech deli meats and cheeses arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+152. Obložená mísa uzenina (1 kg) (miska-uzenina)
+assorted Czech cold cuts arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+153. Obložená mísa sýrová (1 kg) (miska-syrova)
+assorted cheeses arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+154. Obložená mísa feferonková (1 kg) (miska-feferonkova)
+spicy pepper and deli meat assortment arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+155. Obložená mísa lososová (miska-lososova)
+smoked salmon and fresh vegetables arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+156. Obložená mísa zeleninová (2 kg) (miska-zeleninova)
+fresh mixed vegetables arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+157. Obložená mísa ovocná (2 kg) (miska-ovocna)
+fresh mixed fruit arranged on a deli platter, on a plain white platter, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+158. Hodonínský dort (hodoninsky-dort)
+savory layered bread cake with deli fillings on a serving plate, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+159. Slaný dort (1 kg) (slany-dort)
+savory layered sandwich cake with ham, cheese and vegetables on a serving plate, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+160. Klobásová kytice v květináči z řezaných květin (klobasova-kytice)
+a bouquet arranged from Czech sausages and cold cuts, in a simple serving pot, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+161. Chlebíček šunkový (chlebicek-sunkovy)
+Czech open-faced sandwich with sliced ham and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+162. Chlebíček šunkový se sýrem (chlebicek-sunkovy-syr)
+Czech open-faced sandwich with ham, cheese and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+163. Chlebíček se šunkovým salámem (chlebicek-sunkovy-salam)
+Czech open-faced sandwich with ham salami and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+164. Chlebíček se strouhaným salámem (chlebicek-strouhany-salam)
+Czech open-faced sandwich with grated salami spread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+165. Chlebíček s vejcem a turistou (chlebicek-vejce-turista)
+Czech open-faced sandwich with hard-boiled egg and Czech turista salami, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+166. Chlebíček s vejcem a šunkovým salámem (chlebicek-vejce-sunkovy-salam)
+Czech open-faced sandwich with hard-boiled egg and ham salami, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+167. Chlebíček s debrecínkou (chlebicek-debrecinka)
+Czech open-faced sandwich with Debreciner sausage and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+168. Chlebíček s debrecínkou a sýrem (chlebicek-debrecinka-syr)
+Czech open-faced sandwich with Debreciner sausage and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+169. Chlebíček s herkulesem (chlebicek-herkules)
+Czech open-faced sandwich with Herkules salami and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+170. Chlebíček s herkulesem a sýrem (chlebicek-herkules-syr)
+Czech open-faced sandwich with Herkules salami and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+171. Chlebíček trio mix (šunk. salám, herkules, sýr) (chlebicek-trio-mix)
+Czech open-faced sandwich with ham salami, Herkules salami and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+172. Chlebíček švédský (chlebicek-svedsky)
+Czech open-faced sandwich with a generous Swedish-style deli topping with egg and vegetables, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+173. Chlebíček Teplický (chlebicek-teplicky)
+Czech open-faced sandwich with a generous traditional Teplice-style deli topping, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+174. Chlebíček s turistou (chlebicek-turista)
+Czech open-faced sandwich with Czech turista salami and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+175. Chlebíček s anglickou slaninou (chlebicek-anglicka-slanina)
+Czech open-faced sandwich with English bacon and egg, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+176. Chlebíček s rajčetem (chlebicek-rajce)
+Czech open-faced sandwich with fresh tomato and egg, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+177. Chlebíček s pacifikem (chlebicek-pacifik)
+Czech open-faced sandwich with Pacific-style fish spread and vegetables, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+178. Chlebíček s dudáckou pomazánkou (chlebicek-dudacka-pom)
+Czech open-faced sandwich with Czech dudácká cheese spread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+179. Chlebíček s finskou pomazánkou (chlebicek-finska-pom)
+Czech open-faced sandwich with Finnish-style egg and cheese spread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+180. Chlebíček s lutenicí a sýrem (chlebicek-lutenice-syr)
+Czech open-faced sandwich with Czech lecho relish and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+181. Chlebíček s balkánským sýrem (chlebicek-balkansky-syr)
+Czech open-faced sandwich with Balkan white cheese and tomato, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+182. Chlebíček s lososem (chlebicek-losos)
+Czech open-faced sandwich with smoked salmon and cream cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+183. Chlebíček s kaviárem (chlebicek-kaviar)
+Czech open-faced sandwich with caviar and egg, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+184. Chlebíček hermelínový (chlebicek-hermelinovy)
+Czech open-faced sandwich with Czech Camembert cheese and cranberry spread, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+185. Chlebíček s uherákem (chlebicek-uherak)
+Czech open-faced sandwich with Hungarian salami and potato salad, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+186. MINI chlebíček (mini-chlebicek)
+Czech open-faced sandwich with a small assorted deli topping, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+187. MEGA TRIO chlebíček (mega-trio-chlebicek)
+Czech open-faced sandwich with ham salami, Herkules salami and cheese, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
+
+188. Jednohubky (různé druhy) (jednohubky)
+Czech canapés topped with a small assorted selection of Czech canapés, on a plain white plate, realistic food photo, clearly visible generous filling or topping, handmade and slightly imperfect, 3/4 angle from slightly above, pure white background, soft natural light, no text, no logo
