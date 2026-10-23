@@ -21,7 +21,7 @@ Vyplň `.env`:
 - `OWNER_PHONE_NUMBER` – telefon paní, na který má SMS chodit (formát `+420...`)
 - `FRONTEND_URL` – při lokálním vývoji `http://localhost:5173` (nebo jaký port ti vypíše `npm run dev` u frontendu)
 - `STRIPE_WEBHOOK_SECRET` – volitelné do zapnutí platby kartou; pro webhook viz krok 3 níže
-- `DATABASE_URL` – connection string Postgres databáze (na Railway přidej službu PostgreSQL a propojenou proměnnou)
+- `DATABASE_URL` – connection string Postgres databáze (např. Neon; pro produkční server použij pooled connection string)
 - `RESEND_API_KEY` – API klíč z Resend pro odeslání potvrzovacího e-mailu
 - `EMAIL_FROM` – odesílatel v ověřené doméně, např. `Prima Lahůdky <objednavky@moje-domena.cz>`
 
@@ -61,21 +61,19 @@ Po "zaplacení" bys měl/a:
 
 ## 4. Přechod na ostrou verzi (produkce)
 
-1. Ve Stripe dashboardu přepni na **Live** klíče (`sk_live_...`) a vlož do produkčního `.env`.
-2. V dashboardu → Developers → Webhooks → **Add endpoint**, URL: `https://TVOJE-DOMENA/api/webhook`, event `checkout.session.completed`. Dostaneš nový `whsec_...` pro produkci.
-3. `FRONTEND_URL` nastav na ostrou doménu webu.
-4. Backend potřebuje běžet nepřetržitě (např. Render.com / Railway / Replit „Always On" deployment) – nejde o statický hosting, protože musí přijímat webhooky.
-5. Vonage: pokud je účet nový, může mít určitá omezení – zkontroluj si v Vonage dashboardu, že máš dostatek kreditu a že `VONAGE_FROM_NUMBER` je povolený odesílatel pro SMS do Česka.
+1. Stripe je v rozhraní momentálně vypnutý. Ostré klíče ani webhook nenastavuj, dokud se platba kartou znovu nezapne.
+2. `FRONTEND_URL` nastav na finální HTTPS doménu webu.
+3. Backend potřebuje běžet jako webová služba; frontend na Vercelu přeposílá `/api/*` na Render.
+4. Vonage: zkontroluj si, že máš dostatek kreditu a že `VONAGE_FROM_NUMBER` je povolený odesílatel pro SMS do Česka.
 
 ### Doporučené nasazení tohoto projektu
 
 - Frontend může běžet na Vercelu. Build používá `npm run build` a výstup je `dist/public`.
-- Backend může běžet na Railway. Nastav kořen služby na kořen celého repozitáře, ne na `server/`, protože server načítá katalog z `shared/products.json`.
-- Pro backend nastav build příkaz `npm --prefix server ci` a start příkaz `npm --prefix server start`. Railway dodá `PORT` automaticky.
-- Do Railway vlož proměnné z `server/.env.example` s ostrými hodnotami a `FRONTEND_URL` nastav na finální HTTPS adresu webu.
-- Až Railway vygeneruje veřejnou doménu, nahraď placeholder `TVOJE-RAILWAY-URL` v kořenovém `vercel.json` její skutečnou doménou. Tím se volání `/api/*` z webu přepošle na backend.
-- Ve Stripe produkci nastav webhook na `https://<doména-backendu>/api/webhook` a odebírej `checkout.session.completed`. Webhook secret vlož do Railway jako `STRIPE_WEBHOOK_SECRET`.
-- Nejdřív celý tok vyzkoušej s testovacími Stripe klíči; ostré klíče přidej až po ověření testovací platby i SMS.
+- Backend běží na Renderu. Root directory ponech na kořeni repozitáře, protože server načítá katalog z `shared/products.json`.
+- Build command: `npm --prefix server ci`; start command: `npm --prefix server start`. Render automaticky nastaví `PORT`.
+- Na Renderu nastav proměnné z `server/.env.example` se skutečnými hodnotami; `FRONTEND_URL` musí být přesná doména webu včetně `https://`.
+- `vercel.json` přeposílá `/api/*` na `https://lahudky.onrender.com`. Pokud se změní adresa služby, aktualizuj ji i tam.
+- Stripe zůstává vypnutý, dokud se nezapne v rozhraní. Potom nastav webhook na `https://lahudky.onrender.com/api/webhook` a event `checkout.session.completed`.
 
 ## Poznámka k bezpečnosti cen
 

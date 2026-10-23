@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, Clock, MapPin, Menu, Phone, X } from "lucide-react";
-import { SiFacebook, SiInstagram } from "react-icons/si";
-import heroImage from "@/assets/hero.png";
-import cateringImage from "@/assets/catering-bg.png";
-import giftImage from "@/assets/product-basket.png";
+import { SiInstagram } from "react-icons/si";
+import heroImage from "@/assets/hero.webp";
+import cateringImage from "@/assets/catering-bg.webp";
+import giftImage from "@/assets/product-basket.webp";
 import { Button } from "@/components/ui/button";
 
 const offers = [
@@ -120,7 +120,7 @@ export default function Home() {
         <div className="container mx-auto flex flex-col gap-5 px-5 sm:flex-row sm:items-center sm:justify-between md:px-10">
           <div><p className="font-serif text-xl font-bold">Prima Lahůdky</p><p className="mt-1 text-sm text-white/65">Poctivá lahůdkářská výroba z Teplic</p></div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/75"><a href="tel:+420724708277" className="hover:text-white">+420 724 708 277</a><a href="mailto:lahudkyprima.dupakova@seznam.cz" className="hover:text-white">Napsat e-mail</a><Link href="/kontakt" className="hover:text-white">Kontakt</Link><Link href="/eshop" className="hover:text-white">E-shop</Link></div>
-          <div className="flex gap-3"><a href="https://www.instagram.com/lahudky_prima/" target="_blank" rel="noreferrer" aria-label="Instagram Prima Lahůdky" className="rounded-full bg-white/10 p-2 hover:bg-white/20"><SiInstagram /></a><a href="#" aria-label="Facebook Prima Lahůdky" className="rounded-full bg-white/10 p-2 hover:bg-white/20"><SiFacebook /></a></div>
+          <div className="flex gap-3"><a href="https://www.instagram.com/lahudky_prima/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Prima Lahůdky" className="rounded-full bg-white/10 p-2 hover:bg-white/20"><SiInstagram /></a></div>
         </div>
       </footer>
 

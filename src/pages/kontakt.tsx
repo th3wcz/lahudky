@@ -30,7 +30,7 @@ export default function Kontakt() {
         <div className="container mx-auto flex h-[68px] items-center justify-between px-5 md:px-10">
           <Link href="/" className="font-serif text-xl font-bold tracking-tight text-[#2f684f] sm:text-2xl">Prima Lahůdky</Link>
           <nav className="hidden items-center gap-7 text-sm font-medium text-[#5f554c] md:flex" aria-label="Hlavní navigace">
-            <a href="/#sluzby" className="transition hover:text-[#2f684f]">Služby</a>
+            <a href="/#nabidka" className="transition hover:text-[#2f684f]">Služby</a>
             <a href="/#prodejny" className="transition hover:text-[#2f684f]">Prodejny</a>
             <a href="#poptavka" className="transition hover:text-[#2f684f]">Kontakt</a>
             <Link href="/eshop"><Button className="rounded-full bg-[#2f684f] px-5 text-white hover:bg-[#25543f]">E-shop <ArrowRight size={15} /></Button></Link>
@@ -42,7 +42,7 @@ export default function Kontakt() {
         {menuOpen && (
           <nav className="border-t border-[#e9e4dc] bg-[#faf9f6] px-5 py-3 shadow-lg md:hidden" aria-label="Mobilní navigace">
             <div className="container mx-auto flex flex-col">
-              <a href="/#sluzby" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-[#f0ede7]">Služby</a>
+              <a href="/#nabidka" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-[#f0ede7]">Služby</a>
               <a href="/#prodejny" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-[#f0ede7]">Prodejny</a>
               <Link href="/eshop" onClick={() => setMenuOpen(false)} className="mt-2"><Button className="w-full rounded-full bg-[#2f684f] text-white hover:bg-[#25543f]">Přejít do e-shopu <ArrowRight size={15} /></Button></Link>
             </div>

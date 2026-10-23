@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import Stripe from "stripe";
 import { Pool } from "pg";
 import { createHash, randomBytes, randomInt } from "crypto";
@@ -34,6 +36,12 @@ for (const [key, val] of Object.entries({
   if (!val) throw new Error(`Chybí proměnná prostředí: ${key} (nastav ji v .env)`);
 }
 
+const frontendUrl = new URL(FRONTEND_URL.includes("://") ? FRONTEND_URL : `https://${FRONTEND_URL}`);
+if (frontendUrl.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(frontendUrl.hostname)) {
+  throw new Error("FRONTEND_URL musí používat HTTPS.");
+}
+const FRONTEND_ORIGIN = frontendUrl.origin;
+
 // Stripe is optional while card payments are disabled on the storefront.
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 const vonage = new Vonage({
@@ -65,7 +73,26 @@ await db.query(`CREATE TABLE IF NOT EXISTS orders (
 )`);
 
 const app = express();
-app.use(cors({ origin: FRONTEND_URL.replace(/\/+$/, "") }));
+// Render terminates TLS at one trusted reverse proxy; this gives rate limits
+// the client's address instead of the shared proxy address.
+app.set("trust proxy", 1);
+app.use(helmet());
+app.use(cors({ origin: FRONTEND_ORIGIN }));
+
+const orderRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Bylo odesláno příliš mnoho objednávek. Zkuste to prosím za chvíli." },
+});
+const confirmationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 12,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Příliš mnoho pokusů o potvrzení. Zkuste to prosím za chvíli." },
+});
 
 // --- WEBHOOK route MUSÍ mít raw body (kvůli ověření podpisu) a MUSÍ být
 // registrovaná PŘED express.json(), jinak Stripe podpis neověříš. ---
@@ -117,7 +144,7 @@ app.get("/api/checkout-session/:id", async (req, res) => {
   }
 });
 
-app.post("/api/create-checkout-session", async (req, res) => {
+app.post("/api/create-checkout-session", orderRequestLimiter, async (req, res) => {
   if (!stripe) return res.status(503).json({ error: "Platba kartou zatím není dostupná." });
   try {
     const { customerName, customerPhone, requestedAt, note, items } = req.body;
@@ -170,8 +197,8 @@ app.post("/api/create-checkout-session", async (req, res) => {
       mode: "payment",
       payment_method_types: ["card"],
       line_items,
-      success_url: `${FRONTEND_URL.replace(/\/+$/, "")}/eshop?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL.replace(/\/+$/, "")}/eshop?payment=cancelled`,
+      success_url: `${FRONTEND_ORIGIN}/eshop?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_ORIGIN}/eshop?payment=cancelled`,
       metadata: {
         customerName: customerName.slice(0, 480),
         customerPhone: customerPhone.slice(0, 480),
@@ -190,7 +217,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
 
 // Objednávky placené převodem nebo při osobním převzetí ukládáme do databáze
 // a nové objednávky posíláme prodejně přes SMS.
-app.post("/api/create-order-request", async (req, res) => {
+app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
   try {
     const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, note, items } = req.body;
     const requestedTime = typeof requestedAt === "string" ? new Date(requestedAt) : null;
@@ -233,7 +260,7 @@ app.post("/api/create-order-request", async (req, res) => {
        VALUES ($1, $2, NOW() + INTERVAL '72 hours', $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11)`,
       [orderCode, tokenHash, customerName.trim(), customerPhone.trim(), customerEmail.trim(), requestedTime.toISOString(), paymentMethod, storePaymentMethod ?? null, JSON.stringify(savedItems), total, note?.trim() || null]
     );
-    const confirmationUrl = `${FRONTEND_URL.replace(/\/+$/, "")}/potvrdit-objednavku/${confirmationToken}`;
+    const confirmationUrl = `${FRONTEND_ORIGIN}/potvrdit-objednavku/${confirmationToken}`;
     const body = [
       `Nová objednávka ${orderCode}`,
       `${customerName.trim()}, tel: ${customerPhone.trim()}`,
@@ -327,12 +354,12 @@ app.get("/api/order-confirmation/:token", async (req, res) => {
   }
 });
 
-app.post("/api/order-confirmation/:token/confirm", async (req, res) => {
+app.post("/api/order-confirmation/:token/confirm", confirmationLimiter, async (req, res) => {
   const token = req.params.token;
   if (!/^[A-Za-z0-9_-]{40,50}$/.test(token)) return res.status(404).json({ error: "Odkaz není platný." });
   if (!RESEND_API_KEY || !EMAIL_FROM) return res.status(503).json({ error: "Odesílání e-mailů ještě není nastavené." });
+  const tokenHash = createHash("sha256").update(token).digest("hex");
   try {
-    const tokenHash = createHash("sha256").update(token).digest("hex");
     const claim = await db.query(
       `UPDATE orders SET status = 'sending'
        WHERE confirmation_token_hash = $1 AND status = 'pending' AND confirmation_expires_at > NOW()
@@ -374,6 +401,9 @@ app.post("/api/order-confirmation/:token/confirm", async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error("Nepodařilo se potvrdit objednávku:", err);
+    await db.query("UPDATE orders SET status = 'pending' WHERE confirmation_token_hash = $1 AND status = 'sending'", [tokenHash]).catch((resetError) => {
+      console.error("Nepodařilo se obnovit stav potvrzení objednávky:", resetError);
+    });
     res.status(500).json({ error: "Potvrzení objednávky se nepodařilo dokončit." });
   }
 });

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -68,8 +68,12 @@ const categoryNames: Record<string, string> = {
   salaty: "Saláty",
   smazene: "Smažené speciality",
 };
-const productImageUrl = (id: string) => `${import.meta.env.BASE_URL}products/${id}.png`;
+const productImageUrl = (id: string) => `${import.meta.env.BASE_URL}products/${id}.webp`;
 const categories = ["Vše", ...Array.from(new Set(products.map((product) => product.category)))];
+const featuredProducts = categories
+  .filter((category) => category !== "Vše")
+  .map((category) => products.find((product) => product.category === category))
+  .filter((product): product is Product => Boolean(product));
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("cs");
 const formatPrice = (price: number) => new Intl.NumberFormat("cs-CZ").format(price);
 const minimumLeadTime = 48 * 60 * 60 * 1000;
@@ -95,22 +99,22 @@ const getFirstPickupDateTime = () => {
 type CartItem = Product & { quantity: number };
 
 const checkoutSchema = z.object({
-  customerName: z.string().min(2, "Jméno musí mít alespoň 2 znaky"),
-  customerPhone: z.string().min(9, "Neplatné telefonní číslo"),
-  customerEmail: z.string().email("Zadejte platnou e-mailovou adresu").max(254, "E-mailová adresa je příliš dlouhá"),
+  customerName: z.string().trim().min(2, "Jméno musí mít alespoň 2 znaky").max(120, "Jméno je příliš dlouhé"),
+  customerPhone: z.string().trim().min(9, "Neplatné telefonní číslo").max(40, "Telefonní číslo je příliš dlouhé"),
+  customerEmail: z.string().trim().email("Zadejte platnou e-mailovou adresu").max(254, "E-mailová adresa je příliš dlouhá"),
   requestedDate: z.string().min(1, "Vyberte datum vyzvednutí"),
   requestedTime: z.string().min(1, "Vyberte čas vyzvednutí"),
-  paymentMethod: z.enum(["bank_transfer", "store"], { required_error: "Vyberte způsob platby" }),
+  paymentMethod: z.enum(["bank_transfer", "store"], { error: "Vyberte způsob platby" }),
   storePaymentMethod: z.enum(["cash", "card"]).optional(),
-  note: z.string().optional(),
+  note: z.string().max(1000, "Poznámka může mít nejvýše 1000 znaků").optional(),
 }).superRefine((values, context) => {
   const date = new Date(`${values.requestedDate}T12:00:00`);
   const allowedTimes = Number.isFinite(date.getTime()) ? getPickupTimes(date) : [];
   if (!allowedTimes.includes(values.requestedTime)) {
-    context.addIssue({ code: z.ZodIssueCode.custom, path: ["requestedTime"], message: "Vyberte čas během otevírací doby, nejdříve 48 hodin předem." });
+    context.addIssue({ code: "custom", path: ["requestedTime"], message: "Vyberte čas během otevírací doby, nejdříve 48 hodin předem." });
   }
   if (values.paymentMethod === "store" && !values.storePaymentMethod) {
-    context.addIssue({ code: z.ZodIssueCode.custom, path: ["storePaymentMethod"], message: "Vyberte hotově nebo kartou." });
+    context.addIssue({ code: "custom", path: ["storePaymentMethod"], message: "Vyberte hotově nebo kartou." });
   }
 });
 type CheckoutForm = z.infer<typeof checkoutSchema>;
@@ -138,6 +142,24 @@ export default function Eshop() {
   const [confirmedOrderReference, setConfirmedOrderReference] = useState<string | null>(null);
   const [lastAdded, setLastAdded] = useState<{ product: Product; quantity: number; token: number } | null>(null);
   const [addToken, setAddToken] = useState(0);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const reduceMotion = useReducedMotion() ?? false;
+  const featuredProduct = featuredProducts[featuredIndex] ?? featuredProducts[0];
+
+  useEffect(() => {
+    if (reduceMotion || featuredProducts.length < 2) return;
+    const interval = window.setInterval(() => {
+      setFeaturedIndex((current) => (current + 1) % featuredProducts.length);
+    }, 6500);
+    return () => window.clearInterval(interval);
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    featuredProducts.forEach((product) => {
+      const image = new Image();
+      image.src = productImageUrl(product.id);
+    });
+  }, []);
 
   useEffect(() => {
     if (!lastAdded) return;
@@ -164,8 +186,9 @@ export default function Eshop() {
   function addToCart(product: Product, quantity: number) {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === product.id);
-      if (existing) return prev.map((i) => i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i);
-      return [...prev, { ...product, quantity }];
+      const nextQuantity = Math.min(99, (existing?.quantity ?? 0) + quantity);
+      if (existing) return prev.map((i) => i.id === product.id ? { ...i, quantity: nextQuantity } : i);
+      return [...prev, { ...product, quantity: Math.min(99, quantity) }];
     });
     setCartView("items");
     setCartOpen(true);
@@ -175,12 +198,12 @@ export default function Eshop() {
   }
 
   function changeOrderQuantity(id: string, delta: number) {
-    setOrderQuantities((current) => ({ ...current, [id]: Math.max(1, (current[id] ?? 1) + delta) }));
+    setOrderQuantities((current) => ({ ...current, [id]: Math.min(99, Math.max(1, (current[id] ?? 1) + delta)) }));
   }
 
   function changeQty(id: string, delta: number) {
     setCart((prev) =>
-      prev.map((i) => i.id === id ? { ...i, quantity: i.quantity + delta } : i).filter((i) => i.quantity > 0)
+      prev.map((i) => i.id === id ? { ...i, quantity: Math.min(99, i.quantity + delta) } : i).filter((i) => i.quantity > 0)
     );
   }
 
@@ -310,32 +333,67 @@ export default function Eshop() {
         </div>
       </header>
 
-      {/* Hero banner */}
-      <section className="relative overflow-hidden border-b border-border bg-[#edf2e8] px-6 py-10 text-foreground">
-        <div className="container mx-auto max-w-4xl text-center">
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
-            Čerstvé lahůdky z Teplic
-          </motion.p>
-          <motion.h2 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-            className="mb-3 font-serif text-3xl font-bold text-foreground md:text-4xl">
-            Objednejte si lahůdky online
-          </motion.h2>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
-            className="mx-auto max-w-xl text-foreground/70">
-            Vyberte si z naší nabídky a odešlete poptávku. Potvrdíme dostupnost a domluvíme se na vyzvednutí nebo dovozu.
-          </motion.p>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
-            className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70">
-            <Phone size={14} className="text-primary" />
-            <span>Dotazy: <a href="tel:+420724708277" className="font-semibold text-primary hover:underline">+420 724 708 277</a></span>
-          </motion.div>
-          <p className="mx-auto mt-5 max-w-2xl rounded-lg border border-primary/15 bg-white/70 px-4 py-3 text-sm font-semibold text-foreground">
-            Objednávku prosíme zadat nejméně 48 hodin před zvoleným termínem. Každou připravujeme čerstvě.
-          </p>
-          <p className="mx-auto mt-3 max-w-2xl text-xs text-foreground/55">
-            Fotografie jsou ilustrační. Skutečný vzhled produktu se může mírně lišit.
-          </p>
+      {/* E-shop hero with a gently changing product photo */}
+      <section className="overflow-hidden border-b border-border bg-[#edf2e8] px-6 py-8 text-foreground md:py-10">
+        <div className="container mx-auto grid max-w-6xl items-center gap-7 md:grid-cols-[1.1fr_.9fr] md:gap-10">
+          <div className="text-center md:text-left">
+            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
+              Čerstvé lahůdky z Teplic
+            </motion.p>
+            <motion.h2 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
+              className="mb-3 font-serif text-3xl font-bold text-foreground md:text-4xl">
+              Objednejte si lahůdky online
+            </motion.h2>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
+              className="mx-auto max-w-xl text-foreground/70 md:mx-0">
+              Vyberte si z naší nabídky a odešlete poptávku. Potvrdíme dostupnost a domluvíme se na vyzvednutí nebo dovozu.
+            </motion.p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
+              className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70">
+              <Phone size={14} className="text-primary" />
+              <span>Dotazy: <a href="tel:+420724708277" className="font-semibold text-primary hover:underline">+420 724 708 277</a></span>
+            </motion.div>
+            <p className="mx-auto mt-5 max-w-2xl rounded-lg border border-primary/15 bg-white/70 px-4 py-3 text-sm font-semibold text-foreground md:mx-0">
+              Objednávku prosíme zadat nejméně 48 hodin před zvoleným termínem. Každou připravujeme čerstvě.
+            </p>
+            <p className="mx-auto mt-3 max-w-2xl text-xs text-foreground/55 md:mx-0">
+              Fotografie jsou ilustrační. Skutečný vzhled produktu se může mírně lišit.
+            </p>
+          </div>
+          {featuredProduct && (
+            <div className="relative isolate aspect-[16/10] overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5" aria-label="Ukázky z nabídky">
+              <AnimatePresence initial={false} mode="sync">
+                <motion.img
+                  key={featuredProduct.id}
+                  src={productImageUrl(featuredProduct.id)}
+                  alt={`${featuredProduct.name} – ilustrační fotografie`}
+                  loading="eager"
+                  decoding="async"
+                  initial={reduceMotion ? false : { opacity: 0, scale: 1.08, filter: "blur(7px)", clipPath: "inset(12% 10% 14% 10% round 22%)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0% round 0%)" }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, filter: "blur(5px)" }}
+                  transition={{ duration: reduceMotion ? 0 : 0.75, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </AnimatePresence>
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/65 to-transparent px-4 pb-4 pt-10 text-white sm:px-5">
+                <span className="text-sm font-semibold drop-shadow">{featuredProduct.name}</span>
+                <div className="flex shrink-0 items-center gap-1.5" aria-label="Vybrat ukázkovou fotografii">
+                  {featuredProducts.map((product, index) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      aria-label={`Zobrazit fotografii: ${product.name}`}
+                      aria-pressed={index === featuredIndex}
+                      onClick={() => setFeaturedIndex(index)}
+                      className={`h-2.5 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${index === featuredIndex ? "w-6 bg-white" : "w-2.5 bg-white/60 hover:bg-white"}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -510,7 +568,7 @@ export default function Eshop() {
                     <div className="flex items-center gap-2">
                       <button type="button" onClick={() => changeOrderQuantity(selectedProduct.id, -1)} disabled={orderQuantity <= 1} aria-label={`Odebrat kus z množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Minus size={15} /></button>
                       <span aria-live="polite" className="min-w-5 text-center text-sm font-semibold">{orderQuantity}</span>
-                      <button type="button" onClick={() => changeOrderQuantity(selectedProduct.id, 1)} aria-label={`Přidat kus do množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary"><Plus size={15} /></button>
+                      <button type="button" onClick={() => changeOrderQuantity(selectedProduct.id, 1)} disabled={orderQuantity >= 99} aria-label={`Přidat kus do množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Plus size={15} /></button>
                     </div>
                   </div>
                   <Button type="button" data-testid={`button-add-to-cart-${selectedProduct.id}`} onClick={() => addToCart(selectedProduct, orderQuantity)} className="h-9 w-full gap-2 rounded-full bg-primary text-white hover:bg-primary/90">

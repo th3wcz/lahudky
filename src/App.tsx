@@ -1,37 +1,36 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import Eshop from "@/pages/eshop";
-import Kontakt from "@/pages/kontakt";
-import ConfirmOrder from "@/pages/confirm-order";
 
-const queryClient = new QueryClient();
+const Eshop = lazy(() => import("@/pages/eshop"));
+const Kontakt = lazy(() => import("@/pages/kontakt"));
+const ConfirmOrder = lazy(() => import("@/pages/confirm-order"));
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/eshop" component={Eshop} />
-      <Route path="/kontakt" component={Kontakt} />
-      <Route path="/potvrdit-objednavku/:token" component={ConfirmOrder} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<div role="status" className="min-h-screen bg-background"><span className="sr-only">Načítání stránky…</span></div>}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/eshop" component={Eshop} />
+        <Route path="/kontakt" component={Kontakt} />
+        <Route path="/potvrdit-objednavku/:token" component={ConfirmOrder} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <MotionConfig reducedMotion="user">
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <Router />
+      </WouterRouter>
+      <Toaster />
+    </MotionConfig>
   );
 }
 
