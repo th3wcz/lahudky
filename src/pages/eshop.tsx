@@ -790,7 +790,7 @@ export default function Eshop() {
                             </div>
                             <label className={`block cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${field.value === "bank_transfer" ? "border-primary bg-primary/5" : "border-border bg-white"}`}>
                               <span className="flex items-center gap-2 font-semibold"><input type="radio" name={field.name} value="bank_transfer" checked={field.value === "bank_transfer"} onChange={() => { field.onChange("bank_transfer"); form.setValue("storePaymentMethod", undefined); }} /> Bankovní převod</span>
-                              <span className="mt-1 block pl-6 text-xs text-foreground/60">Platební údaje a přesnou částku vám po potvrzení objednávky pošleme.</span>
+                              <span className="mt-1 block pl-6 text-xs text-foreground/60">Po odeslání objednávky vám e-mailem pošleme účet, přesnou částku, variabilní symbol a QR kód. Přijetí platby potvrdíme po její kontrole.</span>
                             </label>
                             <label className={`block cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${field.value === "store" ? "border-primary bg-primary/5" : "border-border bg-white"}`}>
                               <span className="flex items-center gap-2 font-semibold"><input type="radio" name={field.name} value="store" checked={field.value === "store"} onChange={() => field.onChange("store")} /> Osobní odběr na prodejně</span>
@@ -825,7 +825,7 @@ export default function Eshop() {
                         )} />
 
                         <p className="text-xs text-foreground/50 leading-relaxed pt-1">
-                          Objednávku následně potvrdíme SMS nebo telefonicky. U bankovního převodu vám po potvrzení pošleme platební údaje.
+                          O přijetí objednávky vás budeme informovat. U bankovního převodu vám platební údaje pošleme e-mailem hned po odeslání objednávky.
                         </p>
 
                         <Button
@@ -860,10 +860,12 @@ export default function Eshop() {
                   </div>
                   <h2 className="font-serif text-2xl font-bold text-primary">Objednávka odeslána</h2>
                   <p className="text-foreground/60 leading-relaxed">
-                    Děkujeme! Brzy vám potvrdíme objednávku a domluvíme podrobnosti platby a vyzvednutí.
+                    {form.getValues("paymentMethod") === "bank_transfer"
+                      ? "Děkujeme! Platební údaje a QR kód jsme poslali e-mailem. Objednávku a přijetí platby potvrdíme po kontrole převodu."
+                      : "Děkujeme! Brzy vám potvrdíme objednávku a domluvíme podrobnosti vyzvednutí."}
                   </p>
                   {confirmedOrderAt && <p className="rounded-lg bg-muted/60 px-4 py-3 text-sm font-semibold text-foreground">Požadovaný termín: {new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "full", timeStyle: "short" }).format(new Date(confirmedOrderAt))}</p>}
-                  {confirmedOrderReference && form.getValues("paymentMethod") === "bank_transfer" && <p className="rounded-lg bg-primary/5 px-4 py-3 text-sm text-foreground">Pro spárování platby uveďte variabilní symbol <strong>{confirmedOrderReference}</strong>. Platební údaje vám potvrdíme telefonicky nebo SMS.</p>}
+                  {confirmedOrderReference && form.getValues("paymentMethod") === "bank_transfer" && <p className="rounded-lg bg-primary/5 px-4 py-3 text-sm text-foreground">Pro spárování platby uveďte variabilní symbol <strong>{confirmedOrderReference}</strong>. Účet a QR kód jsme poslali na váš e-mail; po kontrole platby vám přijde potvrzení objednávky.</p>}
                   <Button onClick={closeCart} className="mt-4 rounded-full bg-primary text-white px-8">
                     Zavřít
                   </Button>

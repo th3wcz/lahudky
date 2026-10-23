@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import { createHash, randomBytes, randomInt } from "crypto";
 import { Vonage } from "@vonage/server-sdk";
 import { Channels } from "@vonage/messages";
+import QRCode from "qrcode";
 import { getProductById } from "./products.js";
 
 const {
@@ -40,6 +41,9 @@ const vonage = new Vonage({
   apiSecret: VONAGE_API_SECRET,
 });
 const db = new Pool({ connectionString: DATABASE_URL });
+const BANK_ACCOUNT_HOLDER = "Martina Dupáková";
+const BANK_ACCOUNT = "229310381/0300";
+const BANK_IBAN = "CZ7203000000000229310381";
 
 await db.query(`CREATE TABLE IF NOT EXISTS orders (
   id BIGSERIAL PRIMARY KEY,
@@ -184,8 +188,8 @@ app.post("/api/create-checkout-session", async (req, res) => {
   }
 });
 
-// Objednávky placené převodem nebo při osobním převzetí ukládáme do SMS
-// prodejně. Web nemá databázi, proto je SMS zároveň přehledem objednávky.
+// Objednávky placené převodem nebo při osobním převzetí ukládáme do databáze
+// a nové objednávky posíláme prodejně přes SMS.
 app.post("/api/create-order-request", async (req, res) => {
   try {
     const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, note, items } = req.body;
@@ -249,9 +253,56 @@ app.post("/api/create-order-request", async (req, res) => {
       from: VONAGE_FROM_NUMBER.replace(/[^\da-z]/gi, ""),
       text: body,
     });
+    if (paymentMethod === "bank_transfer") {
+      const qrPayload = [
+        "SPD*1.0",
+        `ACC:${BANK_IBAN}`,
+        `AM:${total.toFixed(2)}`,
+        "CC:CZK",
+        `X-VS:${variableSymbol}`,
+        `MSG:OBJEDNAVKA ${orderCode}`,
+      ].join("*");
+      const qrPng = await QRCode.toBuffer(qrPayload, { type: "png", errorCorrectionLevel: "M", margin: 4, width: 360 });
+      const paymentEmailText = [
+        `Dobrý den, ${customerName.trim()},`, "",
+        `děkujeme za objednávku ${orderCode}.`,
+        "Pro dokončení bankovního převodu použijte prosím tyto údaje:",
+        `Příjemce: ${BANK_ACCOUNT_HOLDER}`,
+        `Číslo účtu: ${BANK_ACCOUNT}`,
+        `IBAN: ${BANK_IBAN}`,
+        `Částka: ${total} Kč`,
+        `Variabilní symbol: ${variableSymbol}`,
+        `Termín vyzvednutí: ${requestedLabel}`,
+        `Objednávka: ${itemsSummary}`,
+        "",
+        "V příloze najdete QR kód s předvyplněnou částkou a variabilním symbolem.",
+        "Objednávku a přijetí platby vám potvrdíme samostatným e-mailem po kontrole platby.",
+        "",
+        "Prima Lahůdky",
+      ].join("\n");
+      const paymentEmailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": `order-payment-${orderCode}`,
+        },
+        body: JSON.stringify({
+          from: EMAIL_FROM,
+          to: [customerEmail.trim()],
+          subject: `Platební údaje k objednávce ${orderCode} – Prima Lahůdky`,
+          text: paymentEmailText,
+          attachments: [{ filename: `qr-platba-${orderCode}.png`, content: qrPng.toString("base64") }],
+        }),
+      });
+      if (!paymentEmailResponse.ok) {
+        console.error("Platební e-mail se nepodařilo odeslat přes Resend:", await paymentEmailResponse.text());
+        return res.status(502).json({ error: "Objednávku jsme přijali, ale e-mail s platebními údaji se nepodařilo odeslat. Zavolejte nám prosím." });
+      }
+    }
     res.json({ ok: true, orderCode, variableSymbol });
   } catch (err) {
-    console.error("Nepodařilo se odeslat objednávku SMS:", err);
+    console.error("Nepodařilo se zpracovat objednávku:", err);
     res.status(500).json({ error: "Objednávku se nepodařilo odeslat. Zkuste to prosím znovu nebo nám zavolejte." });
   }
 });
