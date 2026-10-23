@@ -15,12 +15,12 @@ cp .env.example .env
 ```
 
 Vyplň `.env`:
-- `STRIPE_SECRET_KEY` – z https://dashboard.stripe.com/test/apikeys (nejdřív TEST klíč, začíná `sk_test_`)
+- `STRIPE_SECRET_KEY` – volitelné, nastav pouze při zapnutí platby kartou (nejdřív TEST klíč z https://dashboard.stripe.com/test/apikeys)
 - `VONAGE_API_KEY`, `VONAGE_API_SECRET` – z https://dashboard.vonage.com → Settings → API Keys
 - `VONAGE_FROM_NUMBER` – telefonní číslo přidělené/koupené ve Vonage (formát `+420...`)
 - `OWNER_PHONE_NUMBER` – telefon paní, na který má SMS chodit (formát `+420...`)
 - `FRONTEND_URL` – při lokálním vývoji `http://localhost:5173` (nebo jaký port ti vypíše `npm run dev` u frontendu)
-- `STRIPE_WEBHOOK_SECRET` – viz krok 3 níže
+- `STRIPE_WEBHOOK_SECRET` – volitelné do zapnutí platby kartou; pro webhook viz krok 3 níže
 - `DATABASE_URL` – connection string Postgres databáze (na Railway přidej službu PostgreSQL a propojenou proměnnou)
 - `RESEND_API_KEY` – API klíč z Resend pro odeslání potvrzovacího e-mailu
 - `EMAIL_FROM` – odesílatel v ověřené doméně, např. `Prima Lahůdky <objednavky@moje-domena.cz>`

@@ -23,8 +23,6 @@ const {
 } = process.env;
 
 for (const [key, val] of Object.entries({
-  STRIPE_SECRET_KEY,
-  STRIPE_WEBHOOK_SECRET,
   VONAGE_API_KEY,
   VONAGE_API_SECRET,
   VONAGE_FROM_NUMBER,
@@ -35,7 +33,8 @@ for (const [key, val] of Object.entries({
   if (!val) throw new Error(`Chybí proměnná prostředí: ${key} (nastav ji v .env)`);
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY);
+// Stripe is optional while card payments are disabled on the storefront.
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 const vonage = new Vonage({
   apiKey: VONAGE_API_KEY,
   apiSecret: VONAGE_API_SECRET,
@@ -70,6 +69,9 @@ app.post(
   "/api/webhook",
   express.raw({ type: "application/json" }),
   async (req, res) => {
+    if (!stripe || !STRIPE_WEBHOOK_SECRET) {
+      return res.status(503).send("Stripe payments are not configured.");
+    }
     let event;
     try {
       const signature = req.headers["stripe-signature"];
@@ -98,6 +100,7 @@ app.post(
 app.use(express.json({ limit: "20kb" }));
 
 app.get("/api/checkout-session/:id", async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "Platba kartou zatím není dostupná." });
   if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(req.params.id)) {
     return res.status(400).json({ error: "Neplatná platba." });
   }
@@ -111,6 +114,7 @@ app.get("/api/checkout-session/:id", async (req, res) => {
 });
 
 app.post("/api/create-checkout-session", async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "Platba kartou zatím není dostupná." });
   try {
     const { customerName, customerPhone, requestedAt, note, items } = req.body;
     const requestedTime = typeof requestedAt === "string" ? new Date(requestedAt) : null;
