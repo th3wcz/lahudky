@@ -70,10 +70,10 @@ const categoryNames: Record<string, string> = {
 };
 const productImageUrl = (id: string) => `${import.meta.env.BASE_URL}products/${id}.webp`;
 const categories = ["Vše", ...Array.from(new Set(products.map((product) => product.category)))];
-const featuredProducts = categories
+const categoryCards = categories
   .filter((category) => category !== "Vše")
-  .map((category) => products.find((product) => product.category === category))
-  .filter((product): product is Product => Boolean(product));
+  .map((category) => ({ category, products: products.filter((product) => product.category === category) }))
+  .filter((card) => card.products.length > 0);
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("cs");
 const formatPrice = (price: number) => new Intl.NumberFormat("cs-CZ").format(price);
 const minimumLeadTime = 48 * 60 * 60 * 1000;
@@ -142,24 +142,29 @@ export default function Eshop() {
   const [confirmedOrderReference, setConfirmedOrderReference] = useState<string | null>(null);
   const [lastAdded, setLastAdded] = useState<{ product: Product; quantity: number; token: number } | null>(null);
   const [addToken, setAddToken] = useState(0);
-  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [categoryImageStep, setCategoryImageStep] = useState(0);
   const reduceMotion = useReducedMotion() ?? false;
-  const featuredProduct = featuredProducts[featuredIndex] ?? featuredProducts[0];
 
   useEffect(() => {
-    if (reduceMotion || featuredProducts.length < 2) return;
-    const interval = window.setInterval(() => {
-      setFeaturedIndex((current) => (current + 1) % featuredProducts.length);
-    }, 6500);
-    return () => window.clearInterval(interval);
-  }, [reduceMotion]);
-
-  useEffect(() => {
-    featuredProducts.forEach((product) => {
+    if (!showCategoryMenu || reduceMotion || !categoryCards.some((card) => card.products.length > 1)) return;
+    let cancelled = false;
+    let timeout: number | undefined;
+    const nextStep = categoryImageStep + 1;
+    const nextImages = categoryCards.map((card, index) => card.products[(nextStep + index) % card.products.length]);
+    Promise.all(nextImages.map((product) => new Promise<void>((resolve) => {
       const image = new Image();
+      image.onload = () => resolve();
+      image.onerror = () => resolve();
       image.src = productImageUrl(product.id);
+      if (image.complete) resolve();
+    }))).then(() => {
+      if (!cancelled) timeout = window.setTimeout(() => setCategoryImageStep(nextStep), 6500);
     });
-  }, []);
+    return () => {
+      cancelled = true;
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, [categoryImageStep, reduceMotion, showCategoryMenu]);
 
   useEffect(() => {
     if (!lastAdded) return;
@@ -333,67 +338,32 @@ export default function Eshop() {
         </div>
       </header>
 
-      {/* E-shop hero with a gently changing product photo */}
+      {/* E-shop introduction */}
       <section className="overflow-hidden border-b border-border bg-[#edf2e8] px-6 py-8 text-foreground md:py-10">
-        <div className="container mx-auto grid max-w-6xl items-center gap-7 md:grid-cols-[1.1fr_.9fr] md:gap-10">
-          <div className="text-center md:text-left">
-            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
-              Čerstvé lahůdky z Teplic
-            </motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-              className="mb-3 font-serif text-3xl font-bold text-foreground md:text-4xl">
-              Objednejte si lahůdky online
-            </motion.h2>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
-              className="mx-auto max-w-xl text-foreground/70 md:mx-0">
-              Vyberte si z naší nabídky a odešlete poptávku. Potvrdíme dostupnost a domluvíme se na vyzvednutí nebo dovozu.
-            </motion.p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
-              className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70">
-              <Phone size={14} className="text-primary" />
-              <span>Dotazy: <a href="tel:+420724708277" className="font-semibold text-primary hover:underline">+420 724 708 277</a></span>
-            </motion.div>
-            <p className="mx-auto mt-5 max-w-2xl rounded-lg border border-primary/15 bg-white/70 px-4 py-3 text-sm font-semibold text-foreground md:mx-0">
-              Objednávku prosíme zadat nejméně 48 hodin před zvoleným termínem. Každou připravujeme čerstvě.
-            </p>
-            <p className="mx-auto mt-3 max-w-2xl text-xs text-foreground/55 md:mx-0">
-              Fotografie jsou ilustrační. Skutečný vzhled produktu se může mírně lišit.
-            </p>
-          </div>
-          {featuredProduct && (
-            <div className="relative isolate aspect-[16/10] overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black/5" aria-label="Ukázky z nabídky">
-              <AnimatePresence initial={false} mode="sync">
-                <motion.img
-                  key={featuredProduct.id}
-                  src={productImageUrl(featuredProduct.id)}
-                  alt={`${featuredProduct.name} – ilustrační fotografie`}
-                  loading="eager"
-                  decoding="async"
-                  initial={reduceMotion ? false : { opacity: 0, scale: 1.08, filter: "blur(7px)", clipPath: "inset(12% 10% 14% 10% round 22%)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0% round 0%)" }}
-                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, filter: "blur(5px)" }}
-                  transition={{ duration: reduceMotion ? 0 : 0.75, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </AnimatePresence>
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/65 to-transparent px-4 pb-4 pt-10 text-white sm:px-5">
-                <span className="text-sm font-semibold drop-shadow">{featuredProduct.name}</span>
-                <div className="flex shrink-0 items-center gap-1.5" aria-label="Vybrat ukázkovou fotografii">
-                  {featuredProducts.map((product, index) => (
-                    <button
-                      key={product.id}
-                      type="button"
-                      aria-label={`Zobrazit fotografii: ${product.name}`}
-                      aria-pressed={index === featuredIndex}
-                      onClick={() => setFeaturedIndex(index)}
-                      className={`h-2.5 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${index === featuredIndex ? "w-6 bg-white" : "w-2.5 bg-white/60 hover:bg-white"}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="container mx-auto max-w-6xl text-center md:text-left">
+          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
+            Čerstvé lahůdky z Teplic
+          </motion.p>
+          <motion.h2 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
+            className="mb-3 font-serif text-3xl font-bold text-foreground md:text-4xl">
+            Objednejte si lahůdky online
+          </motion.h2>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
+            className="mx-auto max-w-xl text-foreground/70 md:mx-0">
+            Vyberte si z naší nabídky a odešlete poptávku. Potvrdíme dostupnost a domluvíme se na vyzvednutí nebo dovozu.
+          </motion.p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
+            className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70">
+            <Phone size={14} className="text-primary" />
+            <span>Dotazy: <a href="tel:+420724708277" className="font-semibold text-primary hover:underline">+420 724 708 277</a></span>
+          </motion.div>
+          <p className="mx-auto mt-5 max-w-2xl rounded-lg border border-primary/15 bg-white/70 px-4 py-3 text-sm font-semibold text-foreground md:mx-0">
+            Objednávku prosíme zadat nejméně 48 hodin před zvoleným termínem. Každou připravujeme čerstvě.
+          </p>
+          <p className="mx-auto mt-3 max-w-2xl text-xs text-foreground/55 md:mx-0">
+            Fotografie jsou ilustrační. Skutečný vzhled produktu se může mírně lišit.
+          </p>
         </div>
       </section>
 
@@ -418,10 +388,9 @@ export default function Eshop() {
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {categories.filter((category) => category !== "Vše").map((category) => {
-              const representative = products.find((product) => product.category === category);
+            {categoryCards.map(({ category, products: categoryProducts }, categoryIndex) => {
+              const representative = categoryProducts[(categoryImageStep + categoryIndex) % categoryProducts.length];
               const count = groupedProducts.filter((group) => group.products.some((product) => product.category === category)).length;
-              if (!representative) return null;
               return (
                 <button
                   key={category}
@@ -435,8 +404,21 @@ export default function Eshop() {
                   }}
                   className="group overflow-hidden rounded-xl border border-border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-white">
-                    <img src={productImageUrl(representative.id)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <div className="relative aspect-[4/3] overflow-hidden bg-white">
+                    <AnimatePresence initial={false} mode="sync">
+                      <motion.img
+                        key={representative.id}
+                        src={productImageUrl(representative.id)}
+                        alt=""
+                        loading={categoryImageStep === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                        initial={reduceMotion ? false : { opacity: 0, scale: 1.06, filter: "blur(5px)", clipPath: "inset(10% 8% 12% 8% round 18%)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0% round 0%)" }}
+                        exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, filter: "blur(4px)" }}
+                        transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    </AnimatePresence>
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-semibold leading-snug text-foreground">{categoryNames[category] ?? category}</h3>
