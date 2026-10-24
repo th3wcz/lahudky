@@ -7,7 +7,7 @@ import * as z from "zod";
 import { format, startOfDay } from "date-fns";
 import { cs } from "date-fns/locale";
 import {
-  ShoppingCart, X, Plus, Minus, ArrowLeft, Phone, Clock,
+  ShoppingCart, X, Plus, Minus, ArrowLeft, Phone, Clock, MapPin, Truck,
   ChevronRight, ShoppingBag, User, MessageSquare, CheckCircle2, Loader2, Search, Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,16 +96,27 @@ const getFirstPickupDateTime = () => {
   return new Date(earliest);
 };
 
-type CartItem = Product & { quantity: number };
+type CartItem = Product & { quantity: number; preparation?: "namazany" | "se-salatem" };
+
+const pickupLocations = [
+  { id: "nove-lazne", label: "U Nových lázní", address: "U Nových lázní 1593/16, 415 01 Teplice" },
+  { id: "masarykova", label: "Masarykova třída", address: "Masarykova třída 429/26, 415 01 Teplice" },
+] as const;
+const isChlebicek = (product: Product) => product.category === "chlebicky" && product.id.includes("chlebicek");
+const cartItemKey = (item: Pick<CartItem, "id" | "preparation">) => `${item.id}:${item.preparation ?? ""}`;
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "Jméno musí mít alespoň 2 znaky").max(120, "Jméno je příliš dlouhé"),
   customerPhone: z.string().trim().min(9, "Neplatné telefonní číslo").max(40, "Telefonní číslo je příliš dlouhé"),
   customerEmail: z.string().trim().email("Zadejte platnou e-mailovou adresu").max(254, "E-mailová adresa je příliš dlouhá"),
-  requestedDate: z.string().min(1, "Vyberte datum vyzvednutí"),
+  requestedDate: z.string().min(1, "Vyberte datum převzetí nebo doručení"),
   requestedTime: z.string().min(1, "Vyberte čas vyzvednutí"),
   paymentMethod: z.enum(["bank_transfer", "store"], { error: "Vyberte způsob platby" }),
-  storePaymentMethod: z.enum(["cash", "card"]).optional(),
+  storePaymentMethod: z.enum(["card"]).optional(),
+  fulfillmentMethod: z.enum(["pickup", "delivery"], { error: "Vyberte vyzvednutí nebo dovoz." }),
+  pickupStore: z.string().optional(),
+  deliveryAddress: z.string().trim().max(250, "Adresa může mít nejvýše 250 znaků").optional(),
+  deliveryDistance: z.enum(["within_10km", "over_10km"]).optional(),
   note: z.string().max(1000, "Poznámka může mít nejvýše 1000 znaků").optional(),
 }).superRefine((values, context) => {
   const date = new Date(`${values.requestedDate}T12:00:00`);
@@ -114,7 +125,19 @@ const checkoutSchema = z.object({
     context.addIssue({ code: "custom", path: ["requestedTime"], message: "Vyberte čas během otevírací doby, nejdříve 48 hodin předem." });
   }
   if (values.paymentMethod === "store" && !values.storePaymentMethod) {
-    context.addIssue({ code: "custom", path: ["storePaymentMethod"], message: "Vyberte hotově nebo kartou." });
+    context.addIssue({ code: "custom", path: ["storePaymentMethod"], message: "Vyberte platbu kartou." });
+  }
+  if (!pickupLocations.some((location) => location.id === values.pickupStore)) {
+    context.addIssue({ code: "custom", path: ["pickupStore"], message: "Vyberte prodejnu pro vyzvednutí." });
+  }
+  if (values.fulfillmentMethod === "delivery" && !values.deliveryAddress?.trim()) {
+    context.addIssue({ code: "custom", path: ["deliveryAddress"], message: "Zadejte adresu doručení." });
+  }
+  if (values.fulfillmentMethod === "delivery" && values.paymentMethod === "store") {
+    context.addIssue({ code: "custom", path: ["paymentMethod"], message: "Dovoz lze zatím zaplatit pouze bankovním převodem." });
+  }
+  if (values.fulfillmentMethod === "delivery" && !values.deliveryDistance) {
+    context.addIssue({ code: "custom", path: ["deliveryDistance"], message: "Vyberte cenové pásmo dopravy." });
   }
 });
 type CheckoutForm = z.infer<typeof checkoutSchema>;
@@ -133,6 +156,7 @@ export default function Eshop() {
   const [pickupCalendarOpen, setPickupCalendarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [chlebicekPreparations, setChlebicekPreparations] = useState<Record<string, "namazany" | "se-salatem">>({});
   const [orderQuantities, setOrderQuantities] = useState<Record<string, number>>({});
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -174,41 +198,48 @@ export default function Eshop() {
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { customerName: "", customerPhone: "", customerEmail: "", requestedDate: "", requestedTime: "", paymentMethod: undefined, storePaymentMethod: undefined, note: "" },
+    defaultValues: { customerName: "", customerPhone: "", customerEmail: "", requestedDate: "", requestedTime: "", paymentMethod: undefined, storePaymentMethod: undefined, fulfillmentMethod: "pickup", pickupStore: "", deliveryAddress: "", deliveryDistance: undefined, note: "" },
   });
 
-  const filtered = useMemo(() => groupedProducts.filter((group) =>
-    (activeCategory === "Vše" || group.products.some((product) => product.category === activeCategory)) &&
-    normalize(`${group.title} ${group.products.map((product) => `${product.name} ${product.category} ${product.unit}`).join(" ")}`).includes(normalize(search.trim()))
-  ), [activeCategory, search]);
+  const filtered = useMemo(() => {
+    const query = normalize(search.trim());
+    if (query) return products
+      .filter((product) => (activeCategory === "Vše" || product.category === activeCategory) && normalize(`${product.name} ${product.category} ${product.unit}`).includes(query))
+      .map((product) => ({ id: product.id, title: product.name, products: [product] }));
+    return groupedProducts.filter((group) => activeCategory === "Vše" || group.products.some((product) => product.category === activeCategory));
+  }, [activeCategory, search]);
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const fulfillmentMethod = form.watch("fulfillmentMethod");
+  const deliveryDistance = form.watch("deliveryDistance");
+  const deliveryFee = fulfillmentMethod === "delivery" ? (deliveryDistance === "within_10km" ? 150 : deliveryDistance === "over_10km" ? 200 : 0) : 0;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const requestedDate = form.watch("requestedDate");
   const requestedDateObject = requestedDate ? new Date(`${requestedDate}T12:00:00`) : undefined;
   const availablePickupTimes = requestedDateObject ? getPickupTimes(requestedDateObject) : [];
   const firstPickupDateTime = getFirstPickupDateTime();
 
-  function addToCart(product: Product, quantity: number) {
+  function addToCart(product: Product, quantity: number, preparation?: "namazany" | "se-salatem") {
+    const identity = cartItemKey({ id: product.id, preparation });
     setCart((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
+      const existing = prev.find((item) => cartItemKey(item) === identity);
       const nextQuantity = Math.min(99, (existing?.quantity ?? 0) + quantity);
-      if (existing) return prev.map((i) => i.id === product.id ? { ...i, quantity: nextQuantity } : i);
-      return [...prev, { ...product, quantity: Math.min(99, quantity) }];
+      if (existing) return prev.map((item) => cartItemKey(item) === identity ? { ...item, quantity: nextQuantity } : item);
+      return [...prev, { ...product, preparation, quantity: Math.min(99, quantity) }];
     });
     setCartView("items");
     setCartOpen(true);
     setAddToken((token) => token + 1);
     setLastAdded({ product, quantity, token: addToken + 1 });
-    setOrderQuantities((current) => ({ ...current, [product.id]: 1 }));
+    setOrderQuantities((current) => ({ ...current, [identity]: 1 }));
   }
 
   function changeOrderQuantity(id: string, delta: number) {
     setOrderQuantities((current) => ({ ...current, [id]: Math.min(99, Math.max(1, (current[id] ?? 1) + delta)) }));
   }
 
-  function changeQty(id: string, delta: number) {
+  function changeQty(identity: string, delta: number) {
     setCart((prev) =>
-      prev.map((i) => i.id === id ? { ...i, quantity: Math.min(99, i.quantity + delta) } : i).filter((i) => i.quantity > 0)
+      prev.map((item) => cartItemKey(item) === identity ? { ...item, quantity: Math.min(99, item.quantity + delta) } : item).filter((item) => item.quantity > 0)
     );
   }
 
@@ -278,8 +309,12 @@ export default function Eshop() {
           requestedAt: new Date(`${values.requestedDate}T${values.requestedTime}:00`).toISOString(),
           paymentMethod: values.paymentMethod,
           storePaymentMethod: values.storePaymentMethod,
+          fulfillmentMethod: values.fulfillmentMethod,
+          pickupStore: values.pickupStore,
+          deliveryAddress: values.fulfillmentMethod === "delivery" ? values.deliveryAddress : undefined,
+          deliveryDistance: values.fulfillmentMethod === "delivery" ? values.deliveryDistance : undefined,
           note: values.note,
-          items: cart.map((i) => ({ id: i.id, quantity: i.quantity })),
+          items: cart.map((i) => ({ id: i.id, quantity: i.quantity, ...(i.preparation ? { preparation: i.preparation } : {}) })),
         }),
       });
 
@@ -491,8 +526,10 @@ export default function Eshop() {
         >
           {filtered.map((group) => {
             const selectedProduct = group.products.find((product) => product.id === selectedVariants[group.id]) ?? group.products[0];
-            const selectedQuantity = cart.find((item) => item.id === selectedProduct.id)?.quantity ?? 0;
-            const orderQuantity = orderQuantities[selectedProduct.id] ?? 1;
+            const preparation = isChlebicek(selectedProduct) ? (chlebicekPreparations[selectedProduct.id] ?? "namazany") : undefined;
+            const itemIdentity = cartItemKey({ id: selectedProduct.id, preparation });
+            const selectedQuantity = cart.filter((item) => item.id === selectedProduct.id).reduce((total, item) => total + item.quantity, 0);
+            const orderQuantity = orderQuantities[itemIdentity] ?? 1;
             return (
             <motion.div
               key={group.id}
@@ -541,6 +578,13 @@ export default function Eshop() {
                     </div>
                   )}
                 </div>
+                {preparation && <fieldset className="mt-2">
+                  <legend className="text-xs font-medium text-foreground/65">Provedení chlebíčku</legend>
+                  <div className="mt-1 grid grid-cols-2 gap-1.5 text-xs">
+                    <label className="flex items-center gap-1.5 rounded-md border border-border px-2 py-2"><input type="radio" name={`prep-${selectedProduct.id}`} checked={preparation === "namazany"} onChange={() => setChlebicekPreparations((current) => ({ ...current, [selectedProduct.id]: "namazany" }))} /> Namazaný</label>
+                    <label className="flex items-center gap-1.5 rounded-md border border-border px-2 py-2"><input type="radio" name={`prep-${selectedProduct.id}`} checked={preparation === "se-salatem"} onChange={() => setChlebicekPreparations((current) => ({ ...current, [selectedProduct.id]: "se-salatem" }))} /> Se salátem</label>
+                  </div>
+                </fieldset>}
                 <p className="mt-2 text-sm font-bold text-primary">{formatPrice(selectedProduct.price)} Kč <span className="font-normal text-foreground/50">/ {selectedProduct.unit}</span></p>
                 <p className="mt-1 text-xs font-medium text-foreground/60">Za {orderQuantity}×: {formatPrice(selectedProduct.price * orderQuantity)} Kč</p>
                 {selectedQuantity > 0 && <p className="mt-2 text-xs text-foreground/55">V košíku: {selectedQuantity}×</p>}
@@ -548,12 +592,12 @@ export default function Eshop() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-foreground/55">Množství</span>
                     <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => changeOrderQuantity(selectedProduct.id, -1)} disabled={orderQuantity <= 1} aria-label={`Odebrat kus z množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Minus size={15} /></button>
+                      <button type="button" onClick={() => changeOrderQuantity(itemIdentity, -1)} disabled={orderQuantity <= 1} aria-label={`Odebrat kus z množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Minus size={15} /></button>
                       <span aria-live="polite" className="min-w-5 text-center text-sm font-semibold">{orderQuantity}</span>
-                      <button type="button" onClick={() => changeOrderQuantity(selectedProduct.id, 1)} disabled={orderQuantity >= 99} aria-label={`Přidat kus do množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Plus size={15} /></button>
+                      <button type="button" onClick={() => changeOrderQuantity(itemIdentity, 1)} disabled={orderQuantity >= 99} aria-label={`Přidat kus do množství ${selectedProduct.name}`} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/70 hover:border-primary hover:text-primary disabled:opacity-30"><Plus size={15} /></button>
                     </div>
                   </div>
-                  <Button type="button" data-testid={`button-add-to-cart-${selectedProduct.id}`} onClick={() => addToCart(selectedProduct, orderQuantity)} className="h-9 w-full gap-2 rounded-full bg-primary text-white hover:bg-primary/90">
+                  <Button type="button" data-testid={`button-add-to-cart-${selectedProduct.id}`} onClick={() => addToCart(selectedProduct, orderQuantity, preparation)} className="h-9 w-full gap-2 rounded-full bg-primary text-white hover:bg-primary/90">
                     <ShoppingCart size={15} /> Přidat do košíku
                   </Button>
                 </div>
@@ -645,19 +689,19 @@ export default function Eshop() {
                       <motion.ul layout className="flex flex-col gap-4">
                         <AnimatePresence initial={false}>
                         {cart.map((item) => (
-                          <motion.li key={item.id} layout initial={{ opacity: 0, y: 14, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                            transition={{ type: "spring", stiffness: 420, damping: 30 }} data-testid={`cart-item-${item.id}`}
+                          <motion.li key={cartItemKey(item)} layout initial={{ opacity: 0, y: 14, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 420, damping: 30 }} data-testid={`cart-item-${cartItemKey(item)}`}
                             className={`flex gap-4 items-center rounded-xl p-3 transition-colors duration-300 ${lastAdded?.product.id === item.id ? "bg-primary/10 ring-1 ring-primary/25" : "bg-muted/40"}`}>
                             <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm leading-snug truncate">{item.name}</p>
+                              <p className="font-semibold text-sm leading-snug truncate">{item.name}{item.preparation ? ` · ${item.preparation === "namazany" ? "namazaný" : "se salátem"}` : ""}</p>
                               <p className="text-xs text-foreground/50 mt-0.5">{formatPrice(item.price)} Kč / {item.unit}</p>
                               <div className="flex items-center gap-2 mt-2">
-                                <button data-testid={`button-decrease-${item.id}`} onClick={() => changeQty(item.id, -1)}
+                                <button data-testid={`button-decrease-${cartItemKey(item)}`} onClick={() => changeQty(cartItemKey(item), -1)}
                                   className="w-6 h-6 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
                                   <Minus size={12} />
                                 </button>
                                 <motion.span key={item.quantity} initial={{ scale: 0.65, opacity: 0.5 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 500, damping: 18 }} className="text-sm font-bold w-4 text-center">{item.quantity}</motion.span>
-                                <button data-testid={`button-increase-${item.id}`} onClick={() => changeQty(item.id, 1)}
+                                <button data-testid={`button-increase-${cartItemKey(item)}`} onClick={() => changeQty(cartItemKey(item), 1)}
                                   className="w-6 h-6 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
                                   <Plus size={12} />
                                 </button>
@@ -712,19 +756,20 @@ export default function Eshop() {
                     <div className="bg-muted/40 rounded-xl p-4 mb-6">
                       <p className="text-xs font-semibold text-foreground/50 uppercase tracking-widest mb-3">Souhrn objednávky</p>
                       {cart.map((item) => (
-                        <div key={item.id} className="flex justify-between text-sm py-1">
-                          <span className="text-foreground/70">{item.name} ×{item.quantity}</span>
+                        <div key={cartItemKey(item)} className="flex justify-between text-sm py-1">
+                          <span className="text-foreground/70">{item.name}{item.preparation ? ` · ${item.preparation === "namazany" ? "namazaný" : "se salátem"}` : ""} ×{item.quantity}</span>
                           <span className="font-semibold">{formatPrice(item.price * item.quantity)} Kč</span>
                         </div>
                       ))}
-                      <div className="flex justify-between font-bold text-primary mt-3 pt-3 border-t border-border/40">
+                      {deliveryFee > 0 && <div className="mt-3 flex justify-between border-t border-border/40 pt-3 text-sm"><span>Doprava</span><span>{formatPrice(deliveryFee)} Kč</span></div>}
+                      <div className="flex justify-between font-bold text-primary mt-2">
                         <span>Celkem</span>
-                        <span>{formatPrice(cartTotal)} Kč</span>
+                        <span>{formatPrice(cartTotal + deliveryFee)} Kč</span>
                       </div>
                     </div>
 
                     <p className="mb-5 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-medium leading-relaxed text-foreground">
-                      Vyberte požadovaný termín vyzvednutí nebo dovozu. Nejdříve je možné zvolit čas za 48 hodin od vytvoření objednávky; termín vám následně potvrdíme.
+                      Vyberte požadovaný termín převzetí nebo doručení. Nejdříve je možné zvolit čas za 48 hodin od vytvoření objednávky; termín vám následně potvrdíme.
                     </p>
 
                     {/* Form */}
@@ -764,10 +809,37 @@ export default function Eshop() {
                           </FormItem>
                         )} />
 
+                        <FormField control={form.control} name="fulfillmentMethod" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-1.5 text-foreground/70"><Truck size={14} /> Způsob převzetí</FormLabel>
+                            <FormControl><div className="grid grid-cols-2 gap-2">
+                              <label className={`rounded-xl border px-3 py-3 text-sm ${field.value === "pickup" ? "border-primary bg-primary/5" : "border-border bg-white"}`}><input type="radio" name={field.name} checked={field.value === "pickup"} onChange={() => field.onChange("pickup")} /> <span className="ml-1 font-semibold">Vyzvednutí</span><span className="mt-1 block pl-5 text-xs text-foreground/60">Na jedné z prodejen</span></label>
+                              <label className={`rounded-xl border px-3 py-3 text-sm ${field.value === "delivery" ? "border-primary bg-primary/5" : "border-border bg-white"}`}><input type="radio" name={field.name} checked={field.value === "delivery"} onChange={() => { field.onChange("delivery"); if (form.getValues("paymentMethod") === "store") form.setValue("paymentMethod", "bank_transfer"); form.setValue("storePaymentMethod", undefined); }} /> <span className="ml-1 font-semibold">Dovoz</span><span className="mt-1 block pl-5 text-xs text-foreground/60">150 Kč / 200 Kč podle vzdálenosti</span></label>
+                            </div></FormControl><FormMessage />
+                          </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="pickupStore" render={({ field }) => (
+                          <FormItem><FormLabel className="flex items-center gap-1.5 text-foreground/70"><MapPin size={14} /> {fulfillmentMethod === "pickup" ? "Prodejna pro vyzvednutí" : "Výchozí prodejna pro dovoz"}</FormLabel>
+                            <FormControl><select {...field} className="h-10 w-full rounded-xl border border-input bg-white px-3 text-sm"><option value="">Vyberte prodejnu</option>{pickupLocations.map((location) => <option key={location.id} value={location.id}>{location.label} — {location.address}</option>)}</select></FormControl>
+                            {fulfillmentMethod === "delivery" && <p className="text-xs text-foreground/55">Od této prodejny se počítá zvolené pásmo vzdálenosti.</p>}<FormMessage />
+                          </FormItem>
+                        )} />
+                        {fulfillmentMethod === "delivery" && <>
+                          <FormField control={form.control} name="deliveryAddress" render={({ field }) => (
+                            <FormItem><FormLabel className="flex items-center gap-1.5 text-foreground/70"><MapPin size={14} /> Adresa doručení</FormLabel><FormControl><Input placeholder="Ulice, číslo popisné, město, PSČ" autoComplete="street-address" {...field} className="rounded-xl" /></FormControl><FormMessage /></FormItem>
+                          )} />
+                          <FormField control={form.control} name="deliveryDistance" render={({ field }) => (
+                            <FormItem><FormLabel>Cena dopravy podle vzdálenosti</FormLabel><FormControl><div className="space-y-2">
+                              <label className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3 text-sm"><span><input type="radio" name={field.name} checked={field.value === "within_10km"} onChange={() => field.onChange("within_10km")} /> <span className="ml-2">Do 10 km od prodejny</span></span><strong>150 Kč</strong></label>
+                              <label className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3 text-sm"><span><input type="radio" name={field.name} checked={field.value === "over_10km"} onChange={() => field.onChange("over_10km")} /> <span className="ml-2">Nad 10 km od prodejny</span></span><strong>200 Kč</strong></label>
+                            </div></FormControl><p className="text-xs text-foreground/55">Vyberte pásmo podle vzdálenosti. Pásmo a cenu doručení v objednávce ještě potvrdíme.</p><FormMessage /></FormItem>
+                          )} />
+                        </>}
                         <FormField control={form.control} name="requestedDate" render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-1.5 text-foreground/70">
-                              <Clock size={14} /> Datum vyzvednutí
+                              <Clock size={14} /> Datum převzetí / doručení
                             </FormLabel>
                             <Popover open={pickupCalendarOpen} onOpenChange={setPickupCalendarOpen}>
                               <FormControl>
@@ -801,7 +873,7 @@ export default function Eshop() {
                         <FormField control={form.control} name="requestedTime" render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-1.5 text-foreground/70">
-                              <Clock size={14} /> Čas vyzvednutí
+                              <Clock size={14} /> Čas převzetí / doručení
                             </FormLabel>
                             <FormControl>
                               <select
@@ -832,19 +904,9 @@ export default function Eshop() {
                               <span className="flex items-center gap-2 font-semibold"><input type="radio" name={field.name} value="bank_transfer" checked={field.value === "bank_transfer"} onChange={() => { field.onChange("bank_transfer"); form.setValue("storePaymentMethod", undefined); }} /> Bankovní převod</span>
                               <span className="mt-1 block pl-6 text-xs text-foreground/60">Po odeslání objednávky vám e-mailem pošleme účet, přesnou částku, variabilní symbol a QR kód. Přijetí platby potvrdíme po její kontrole.</span>
                             </label>
-                            <label className={`block cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${field.value === "store" ? "border-primary bg-primary/5" : "border-border bg-white"}`}>
-                              <span className="flex items-center gap-2 font-semibold"><input type="radio" name={field.name} value="store" checked={field.value === "store"} onChange={() => field.onChange("store")} /> Osobní odběr na prodejně</span>
-                              <span className="mt-1 block pl-6 text-xs text-foreground/60">Zaplatíte při převzetí hotově nebo kartou.</span>
-                            </label>
-                            {field.value === "store" && <FormField control={form.control} name="storePaymentMethod" render={({ field: storeField }) => (
-                              <FormItem className="pl-6">
-                                <FormLabel className="text-xs text-foreground/70">Platba při převzetí</FormLabel>
-                                <FormControl><div className="flex gap-4 text-sm">
-                                  <label className="flex items-center gap-2"><input type="radio" name={storeField.name} value="cash" checked={storeField.value === "cash"} onChange={() => storeField.onChange("cash")} /> Hotově</label>
-                                  <label className="flex items-center gap-2"><input type="radio" name={storeField.name} value="card" checked={storeField.value === "card"} onChange={() => storeField.onChange("card")} /> Kartou</label>
-                                </div></FormControl><FormMessage />
-                              </FormItem>
-                            )} />}
+                            {fulfillmentMethod === "pickup" && <label className={`block cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${field.value === "store" ? "border-primary bg-primary/5" : "border-border bg-white"}`}>
+                              <span className="flex items-center gap-2 font-semibold"><input type="radio" name={field.name} value="store" checked={field.value === "store"} onChange={() => { field.onChange("store"); form.setValue("storePaymentMethod", "card"); }} /> Kartou při převzetí na prodejně</span>
+                            </label>}
                           </div>
                         </FormControl><FormMessage />
                       </FormItem>

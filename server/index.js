@@ -71,6 +71,12 @@ await db.query(`CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   confirmed_at TIMESTAMPTZ
 )`);
+await db.query(`ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS fulfillment_method TEXT NOT NULL DEFAULT 'pickup',
+  ADD COLUMN IF NOT EXISTS pickup_store TEXT,
+  ADD COLUMN IF NOT EXISTS delivery_address TEXT,
+  ADD COLUMN IF NOT EXISTS delivery_distance TEXT,
+  ADD COLUMN IF NOT EXISTS delivery_fee_czk INTEGER NOT NULL DEFAULT 0`);
 
 const app = express();
 // Render terminates TLS at one trusted reverse proxy; this gives rate limits
@@ -219,7 +225,7 @@ app.post("/api/create-checkout-session", orderRequestLimiter, async (req, res) =
 // a nové objednávky posíláme prodejně přes SMS.
 app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
   try {
-    const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, note, items } = req.body;
+    const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, fulfillmentMethod, pickupStore, deliveryAddress, deliveryDistance, note, items } = req.body;
     const requestedTime = typeof requestedAt === "string" ? new Date(requestedAt) : null;
     if (
       typeof customerName !== "string" || customerName.trim().length < 2 || customerName.length > 120 ||
@@ -228,11 +234,15 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
       !requestedTime || !Number.isFinite(requestedTime.getTime()) ||
       requestedTime.getTime() < Date.now() + 48 * 60 * 60 * 1000 || !isStoreOpenAt(requestedTime) ||
       !["bank_transfer", "store"].includes(paymentMethod) ||
-      (paymentMethod === "store" && !["cash", "card"].includes(storePaymentMethod)) ||
+      (paymentMethod === "store" && storePaymentMethod !== "card") ||
       (paymentMethod === "bank_transfer" && storePaymentMethod !== undefined) ||
+      !["pickup", "delivery"].includes(fulfillmentMethod) ||
+      !["nove-lazne", "masarykova"].includes(pickupStore) ||
+      (fulfillmentMethod === "pickup" && (deliveryAddress !== undefined || deliveryDistance !== undefined)) ||
+      (fulfillmentMethod === "delivery" && (typeof deliveryAddress !== "string" || !deliveryAddress.trim() || deliveryAddress.length > 250 || !["within_10km", "over_10km"].includes(deliveryDistance) || paymentMethod !== "bank_transfer")) ||
       (note !== undefined && (typeof note !== "string" || note.length > 1000)) ||
       !Array.isArray(items) || items.length === 0 || items.length > 50 ||
-      items.some((item) => !item || typeof item.id !== "string" || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99 || !getProductById(item.id))
+      items.some((item) => !item || typeof item.id !== "string" || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99 || !getProductById(item.id) || (getProductById(item.id).id.includes("chlebicek") && !["namazany", "se-salatem"].includes(item.preparation)) || (item.preparation !== undefined && (!getProductById(item.id).id.includes("chlebicek") || !["namazany", "se-salatem"].includes(item.preparation))))
     ) {
       return res.status(400).json({ error: "Zkontrolujte údaje, způsob platby a termín alespoň 48 hodin předem během otevírací doby." });
     }
@@ -244,30 +254,38 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
       const product = getProductById(item.id);
       return { product, quantity: item.quantity };
     });
-    const total = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-    const itemsSummary = orderItems.map(({ product, quantity }) => `${product.name} x${quantity}`).join(", ");
+    const deliveryFee = fulfillmentMethod === "delivery" ? (deliveryDistance === "within_10km" ? 150 : 200) : 0;
+    const total = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0) + deliveryFee;
+    const itemsSummary = orderItems.map(({ product, quantity }, index) => `${product.name}${items[index].preparation ? ` (${items[index].preparation === "namazany" ? "namazaný" : "se salátem"})` : ""} x${quantity}`).join(", ");
     const requestedLabel = new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "short", timeStyle: "short" }).format(requestedTime);
+    const locationLabels = { "nove-lazne": "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice", masarykova: "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice" };
+    const fulfillmentLabel = fulfillmentMethod === "pickup"
+      ? `Vyzvednutí: ${locationLabels[pickupStore]}`
+      : `Výchozí prodejna: ${locationLabels[pickupStore]}\nDovoz: ${deliveryAddress.trim()} (${deliveryDistance === "within_10km" ? "do 10 km" : "nad 10 km"}, doprava ${deliveryFee} Kč)`;
     const paymentLabel = paymentMethod === "bank_transfer"
       ? "Bankovní převod – čeká na potvrzení a připsání"
-      : `Osobní odběr – ${storePaymentMethod === "cash" ? "hotově" : "kartou při převzetí"}`;
+      : "Platba kartou při převzetí na prodejně";
     const variableSymbol = String(randomInt(1_000_000_000, 10_000_000_000));
     const orderCode = `LP-${variableSymbol}`;
     const confirmationToken = randomBytes(32).toString("base64url");
     const tokenHash = createHash("sha256").update(confirmationToken).digest("hex");
-    const savedItems = orderItems.map(({ product, quantity }) => ({ name: product.name, unit: product.unit, unitPrice: product.price, quantity }));
+    const savedItems = orderItems.map(({ product, quantity }, index) => ({ name: product.name, ...(items[index].preparation ? { preparation: items[index].preparation === "namazany" ? "namazaný" : "se salátem" } : {}), unit: product.unit, unitPrice: product.price, quantity }));
     await db.query(
-      `INSERT INTO orders (order_code, confirmation_token_hash, confirmation_expires_at, customer_name, customer_phone, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note)
-       VALUES ($1, $2, NOW() + INTERVAL '72 hours', $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11)`,
-      [orderCode, tokenHash, customerName.trim(), customerPhone.trim(), customerEmail.trim(), requestedTime.toISOString(), paymentMethod, storePaymentMethod ?? null, JSON.stringify(savedItems), total, note?.trim() || null]
+      `INSERT INTO orders (order_code, confirmation_token_hash, confirmation_expires_at, customer_name, customer_phone, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note, fulfillment_method, pickup_store, delivery_address, delivery_distance, delivery_fee_czk)
+       VALUES ($1, $2, NOW() + INTERVAL '72 hours', $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16)`,
+      [orderCode, tokenHash, customerName.trim(), customerPhone.trim(), customerEmail.trim(), requestedTime.toISOString(), paymentMethod, storePaymentMethod ?? null, JSON.stringify(savedItems), total, note?.trim() || null, fulfillmentMethod, pickupStore ?? null, deliveryAddress?.trim() ?? null, deliveryDistance ?? null, deliveryFee]
     );
     const confirmationUrl = `${FRONTEND_ORIGIN}/potvrdit-objednavku/${confirmationToken}`;
     const body = [
       `Nová objednávka ${orderCode}`,
       `${customerName.trim()}, tel: ${customerPhone.trim()}`,
       `Termín: ${requestedLabel}`,
+      fulfillmentLabel,
       `Platba: ${paymentLabel}`,
       paymentMethod === "bank_transfer" ? `Variabilní symbol: ${variableSymbol}` : null,
       itemsSummary,
+      `Zboží: ${total - deliveryFee} Kč`,
+      ...(deliveryFee > 0 ? [`Doprava: ${deliveryFee} Kč`] : []),
       `Celkem: ${total} Kč`,
       paymentMethod === "bank_transfer" ? `Po kontrole platby otevřete odkaz a odešlete potvrzení zákazníkovi: ${confirmationUrl}` : null,
       note?.trim() ? `Pozn.: ${note.trim()}` : null,
@@ -299,7 +317,10 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
         `IBAN: ${BANK_IBAN}`,
         `Částka: ${total} Kč`,
         `Variabilní symbol: ${variableSymbol}`,
-        `Termín vyzvednutí: ${requestedLabel}`,
+        `Termín: ${requestedLabel}`,
+        fulfillmentLabel,
+        `Zboží: ${total - deliveryFee} Kč`,
+        ...(deliveryFee > 0 ? [`Doprava: ${deliveryFee} Kč`] : []),
         `Objednávka: ${itemsSummary}`,
         "",
         "V příloze najdete QR kód s předvyplněnou částkou a variabilním symbolem.",
@@ -341,7 +362,7 @@ app.get("/api/order-confirmation/:token", async (req, res) => {
   try {
     const tokenHash = createHash("sha256").update(token).digest("hex");
     const result = await db.query(
-      `SELECT order_code, status, customer_name, customer_phone, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note, confirmation_expires_at
+      `SELECT order_code, status, customer_name, customer_phone, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note, fulfillment_method, pickup_store, delivery_address, delivery_distance, delivery_fee_czk, confirmation_expires_at
        FROM orders WHERE confirmation_token_hash = $1`, [tokenHash]
     );
     const order = result.rows[0];
@@ -363,7 +384,7 @@ app.post("/api/order-confirmation/:token/confirm", confirmationLimiter, async (r
     const claim = await db.query(
       `UPDATE orders SET status = 'sending'
        WHERE confirmation_token_hash = $1 AND status = 'pending' AND confirmation_expires_at > NOW()
-       RETURNING order_code, customer_name, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note`, [tokenHash]
+       RETURNING order_code, customer_name, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note, fulfillment_method, pickup_store, delivery_address, delivery_distance, delivery_fee_czk`, [tokenHash]
     );
     const order = claim.rows[0];
     if (!order) {
@@ -378,11 +399,16 @@ app.post("/api/order-confirmation/:token/confirm", confirmationLimiter, async (r
       return res.status(400).json({ error: "Tento odkaz není určený pro potvrzení bankovního převodu." });
     }
     const requestedLabel = new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "full", timeStyle: "short" }).format(order.requested_at);
-    const itemLines = order.items.map((item) => `${item.name} × ${item.quantity} — ${item.unitPrice * item.quantity} Kč`).join("\n");
+    const itemLines = order.items.map((item) => `${item.name}${item.preparation ? ` · ${item.preparation}` : ""} × ${item.quantity} — ${item.unitPrice * item.quantity} Kč`).join("\n");
+    const locationLabels = { "nove-lazne": "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice", masarykova: "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice" };
+    const fulfillmentLabel = order.fulfillment_method === "pickup"
+      ? `Vyzvednutí: ${locationLabels[order.pickup_store] ?? order.pickup_store}`
+      : `Výchozí prodejna: ${locationLabels[order.pickup_store] ?? order.pickup_store}\nDovoz: ${order.delivery_address} (${order.delivery_distance === "within_10km" ? "do 10 km" : "nad 10 km"}, doprava ${order.delivery_fee_czk} Kč)`;
     const emailText = [
       `Dobrý den, ${order.customer_name},`, "",
       `potvrzujeme objednávku ${order.order_code} a přijetí platby.`,
-      `Termín vyzvednutí: ${requestedLabel}`, "", "Objednávka:", itemLines,
+      `Termín: ${requestedLabel}`, fulfillmentLabel, "", "Objednávka:", itemLines,
+      ...(order.delivery_fee_czk > 0 ? [`Doprava: ${order.delivery_fee_czk} Kč`] : []),
       "", `Celkem: ${order.total_czk} Kč`, "",
       "Děkujeme za objednávku, Prima Lahůdky",
       order.note ? `\nVaše poznámka: ${order.note}` : null,

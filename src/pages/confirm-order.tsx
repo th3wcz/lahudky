@@ -12,8 +12,13 @@ type Order = {
   requested_at: string;
   payment_method: string;
   store_payment_method: string | null;
-  items: Array<{ name: string; unit: string; unitPrice: number; quantity: number }>;
+  items: Array<{ name: string; preparation?: string; unit: string; unitPrice: number; quantity: number }>;
   total_czk: number;
+  fulfillment_method: "pickup" | "delivery";
+  pickup_store: string | null;
+  delivery_address: string | null;
+  delivery_distance: "within_10km" | "over_10km" | null;
+  delivery_fee_czk: number;
   note: string | null;
   confirmation_expires_at: string;
 };
@@ -81,9 +86,11 @@ export default function ConfirmOrder() {
               <p><strong>E-mail:</strong> {order.customer_email}</p>
               <p><strong>Termín:</strong> {new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "full", timeStyle: "short" }).format(new Date(order.requested_at))}</p>
               <p><strong>Platba:</strong> Bankovní převod (variabilní symbol {order.order_code.replace("LP-", "")})</p>
+              {order.fulfillment_method === "pickup" ? <p><strong>Vyzvednutí:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice" : "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice"}</p> : <><p><strong>Výchozí prodejna:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní" : "Masarykova třída"}</p><p><strong>Dovoz:</strong> {order.delivery_address} ({order.delivery_distance === "within_10km" ? "do 10 km" : "nad 10 km"})</p></>}
             </div>
             <div className="mt-5 divide-y divide-border rounded-xl border border-border px-4">
-              {order.items.map((item, index) => <div key={`${item.name}-${index}`} className="flex justify-between gap-4 py-3 text-sm"><span>{item.name} × {item.quantity}</span><span className="whitespace-nowrap">{money(item.unitPrice * item.quantity)} Kč</span></div>)}
+              {order.items.map((item, index) => <div key={`${item.name}-${index}`} className="flex justify-between gap-4 py-3 text-sm"><span>{item.name}{item.preparation ? ` · ${item.preparation}` : ""} × {item.quantity}</span><span className="whitespace-nowrap">{money(item.unitPrice * item.quantity)} Kč</span></div>)}
+              {order.delivery_fee_czk > 0 && <div className="flex justify-between py-3 text-sm"><span>Doprava</span><span>{money(order.delivery_fee_czk)} Kč</span></div>}
               <div className="flex justify-between py-3 font-bold"><span>Celkem</span><span>{money(order.total_czk)} Kč</span></div>
             </div>
             {order.note && <p className="mt-4 text-sm text-foreground/70"><strong>Poznámka:</strong> {order.note}</p>}
