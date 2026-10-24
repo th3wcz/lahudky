@@ -116,7 +116,7 @@ const checkoutSchema = z.object({
   fulfillmentMethod: z.enum(["pickup", "delivery"], { error: "Vyberte vyzvednutí nebo dovoz." }),
   pickupStore: z.string().optional(),
   deliveryAddress: z.string().trim().max(250, "Adresa může mít nejvýše 250 znaků").optional(),
-  deliveryDistance: z.enum(["within_10km", "over_10km"]).optional(),
+
   note: z.string().max(1000, "Poznámka může mít nejvýše 1000 znaků").optional(),
 }).superRefine((values, context) => {
   const date = new Date(`${values.requestedDate}T12:00:00`);
@@ -136,13 +136,11 @@ const checkoutSchema = z.object({
   if (values.fulfillmentMethod === "delivery" && values.paymentMethod === "store") {
     context.addIssue({ code: "custom", path: ["paymentMethod"], message: "Dovoz lze zatím zaplatit pouze bankovním převodem." });
   }
-  if (values.fulfillmentMethod === "delivery" && !values.deliveryDistance) {
-    context.addIssue({ code: "custom", path: ["deliveryDistance"], message: "Vyberte cenové pásmo dopravy." });
-  }
 });
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 type CartView = "items" | "checkout" | "success";
+type DeliveryQuote = { address: string; pickupStore: string; distanceKm: number; fee: number; quoteToken: string };
 
 export default function Eshop() {
   const { toast } = useToast();
@@ -157,6 +155,9 @@ export default function Eshop() {
   const [search, setSearch] = useState("");
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [chlebicekPreparations, setChlebicekPreparations] = useState<Record<string, "namazany" | "se-salatem">>({});
+  const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuote | null>(null);
+  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false);
+  const [deliveryQuoteError, setDeliveryQuoteError] = useState("");
   const [orderQuantities, setOrderQuantities] = useState<Record<string, number>>({});
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -198,7 +199,7 @@ export default function Eshop() {
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { customerName: "", customerPhone: "", customerEmail: "", requestedDate: "", requestedTime: "", paymentMethod: undefined, storePaymentMethod: undefined, fulfillmentMethod: "pickup", pickupStore: "", deliveryAddress: "", deliveryDistance: undefined, note: "" },
+    defaultValues: { customerName: "", customerPhone: "", customerEmail: "", requestedDate: "", requestedTime: "", paymentMethod: undefined, storePaymentMethod: undefined, fulfillmentMethod: "pickup", pickupStore: "", deliveryAddress: "", note: "" },
   });
 
   const filtered = useMemo(() => {
@@ -210,8 +211,10 @@ export default function Eshop() {
   }, [activeCategory, search]);
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const fulfillmentMethod = form.watch("fulfillmentMethod");
-  const deliveryDistance = form.watch("deliveryDistance");
-  const deliveryFee = fulfillmentMethod === "delivery" ? (deliveryDistance === "within_10km" ? 150 : deliveryDistance === "over_10km" ? 200 : 0) : 0;
+  const deliveryAddress = form.watch("deliveryAddress");
+  const pickupStore = form.watch("pickupStore");
+  const deliveryQuoteMatches = Boolean(deliveryQuote && deliveryQuote.address === normalize(deliveryAddress ?? "") && deliveryQuote.pickupStore === pickupStore);
+  const deliveryFee = fulfillmentMethod === "delivery" && deliveryQuoteMatches ? deliveryQuote!.fee : 0;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const requestedDate = form.watch("requestedDate");
   const requestedDateObject = requestedDate ? new Date(`${requestedDate}T12:00:00`) : undefined;
@@ -296,6 +299,28 @@ export default function Eshop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function calculateDeliveryQuote(address: string, storeId: string) {
+    const normalizedAddress = normalize(address.trim());
+    if (normalizedAddress.length < 8 || !pickupLocations.some((location) => location.id === storeId)) return;
+    setIsCalculatingDelivery(true);
+    setDeliveryQuoteError("");
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}api/delivery-quote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address.trim(), pickupStore: storeId }),
+      });
+      const data = await response.json().catch(() => ({})) as { distanceKm?: number; fee?: number; quoteToken?: string; error?: string };
+      if (!response.ok || !Number.isFinite(data.distanceKm) || ![150, 200].includes(data.fee ?? 0) || !data.quoteToken) {
+        throw new Error(data.error ?? "Cenu dovozu se nepodařilo spočítat.");
+      }
+      setDeliveryQuote({ address: normalizedAddress, pickupStore: storeId, distanceKm: data.distanceKm!, fee: data.fee!, quoteToken: data.quoteToken });
+    } catch (error) {
+      setDeliveryQuoteError(error instanceof Error ? error.message : "Cenu dovozu se nepodařilo spočítat.");
+    } finally {
+      setIsCalculatingDelivery(false);
+    }
+  }
   async function onSubmitOrder(values: CheckoutForm) {
     setIsSending(true);
     try {
@@ -312,7 +337,7 @@ export default function Eshop() {
           fulfillmentMethod: values.fulfillmentMethod,
           pickupStore: values.pickupStore,
           deliveryAddress: values.fulfillmentMethod === "delivery" ? values.deliveryAddress : undefined,
-          deliveryDistance: values.fulfillmentMethod === "delivery" ? values.deliveryDistance : undefined,
+          deliveryQuoteToken: values.fulfillmentMethod === "delivery" ? deliveryQuote?.quoteToken : undefined,
           note: values.note,
           items: cart.map((i) => ({ id: i.id, quantity: i.quantity, ...(i.preparation ? { preparation: i.preparation } : {}) })),
         }),
@@ -761,7 +786,7 @@ export default function Eshop() {
                           <span className="font-semibold">{formatPrice(item.price * item.quantity)} Kč</span>
                         </div>
                       ))}
-                      {deliveryFee > 0 && <div className="mt-3 flex justify-between border-t border-border/40 pt-3 text-sm"><span>Doprava</span><span>{formatPrice(deliveryFee)} Kč</span></div>}
+                      {deliveryFee > 0 && <div className="mt-3 flex justify-between border-t border-border/40 pt-3 text-sm"><span>Doprava ({deliveryQuote?.distanceKm.toFixed(1)} km)</span><span>{formatPrice(deliveryFee)} Kč</span></div>}
                       <div className="flex justify-between font-bold text-primary mt-2">
                         <span>Celkem</span>
                         <span>{formatPrice(cartTotal + deliveryFee)} Kč</span>
@@ -821,20 +846,21 @@ export default function Eshop() {
 
                         <FormField control={form.control} name="pickupStore" render={({ field }) => (
                           <FormItem><FormLabel className="flex items-center gap-1.5 text-foreground/70"><MapPin size={14} /> {fulfillmentMethod === "pickup" ? "Prodejna pro vyzvednutí" : "Výchozí prodejna pro dovoz"}</FormLabel>
-                            <FormControl><select {...field} className="h-10 w-full rounded-xl border border-input bg-white px-3 text-sm"><option value="">Vyberte prodejnu</option>{pickupLocations.map((location) => <option key={location.id} value={location.id}>{location.label} — {location.address}</option>)}</select></FormControl>
+                            <FormControl><select {...field} onChange={(event) => { field.onChange(event); if (fulfillmentMethod === "delivery") void calculateDeliveryQuote(form.getValues("deliveryAddress") ?? "", event.target.value); }} className="h-10 w-full rounded-xl border border-input bg-white px-3 text-sm"><option value="">Vyberte prodejnu</option>{pickupLocations.map((location) => <option key={location.id} value={location.id}>{location.label} — {location.address}</option>)}</select></FormControl>
                             {fulfillmentMethod === "delivery" && <p className="text-xs text-foreground/55">Od této prodejny se počítá zvolené pásmo vzdálenosti.</p>}<FormMessage />
                           </FormItem>
                         )} />
                         {fulfillmentMethod === "delivery" && <>
                           <FormField control={form.control} name="deliveryAddress" render={({ field }) => (
-                            <FormItem><FormLabel className="flex items-center gap-1.5 text-foreground/70"><MapPin size={14} /> Adresa doručení</FormLabel><FormControl><Input placeholder="Ulice, číslo popisné, město, PSČ" autoComplete="street-address" {...field} className="rounded-xl" /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel className="flex items-center gap-1.5 text-foreground/70"><MapPin size={14} /> Adresa doručení</FormLabel><FormControl><Input placeholder="Ulice, číslo, město a PSČ" autoComplete="street-address" {...field} onBlur={(event) => { field.onBlur(); void calculateDeliveryQuote(event.currentTarget.value, form.getValues("pickupStore") ?? ""); }} className="rounded-xl" /></FormControl><FormMessage /></FormItem>
                           )} />
-                          <FormField control={form.control} name="deliveryDistance" render={({ field }) => (
-                            <FormItem><FormLabel>Cena dopravy podle vzdálenosti</FormLabel><FormControl><div className="space-y-2">
-                              <label className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3 text-sm"><span><input type="radio" name={field.name} checked={field.value === "within_10km"} onChange={() => field.onChange("within_10km")} /> <span className="ml-2">Do 10 km od prodejny</span></span><strong>150 Kč</strong></label>
-                              <label className="flex items-center justify-between rounded-xl border border-border bg-white px-4 py-3 text-sm"><span><input type="radio" name={field.name} checked={field.value === "over_10km"} onChange={() => field.onChange("over_10km")} /> <span className="ml-2">Nad 10 km od prodejny</span></span><strong>200 Kč</strong></label>
-                            </div></FormControl><p className="text-xs text-foreground/55">Vyberte pásmo podle vzdálenosti. Pásmo a cenu doručení v objednávce ještě potvrdíme.</p><FormMessage /></FormItem>
-                          )} />
+                          <div aria-live="polite" className="rounded-xl border border-border bg-white px-4 py-3 text-sm">
+                            {isCalculatingDelivery ? <span className="flex items-center gap-2 text-foreground/65"><Loader2 size={15} className="animate-spin" /> Počítám silniční vzdálenost…</span>
+                              : deliveryQuoteMatches ? <span>Vzdálenost přibližně <strong>{deliveryQuote?.distanceKm.toFixed(1)} km</strong> · doprava <strong>{deliveryFee} Kč</strong></span>
+                              : deliveryQuoteError ? <span role="alert" className="text-red-700">{deliveryQuoteError}</span>
+                              : <span className="text-foreground/60">Zadejte úplnou adresu a klikněte mimo pole. Vzdálenost a cena se spočítají automaticky.</span>}
+                          </div>
+                          <p className="text-xs text-foreground/55">Adresa se odešle službě OpenRouteService pro výpočet trasy z vybrané prodejny. Do 10 km je doprava 150 Kč, nad 10 km 200 Kč.</p>
                         </>}
                         <FormField control={form.control} name="requestedDate" render={({ field }) => (
                           <FormItem>
@@ -933,7 +959,7 @@ export default function Eshop() {
                         <Button
                           data-testid="button-submit-order"
                           type="submit"
-                          disabled={isSending}
+                          disabled={isSending || (fulfillmentMethod === "delivery" && (!deliveryQuoteMatches || isCalculatingDelivery))}
                           className="w-full rounded-full bg-primary text-white hover:bg-primary/90 py-6 text-base font-semibold gap-2"
                         >
                           {isSending ? (

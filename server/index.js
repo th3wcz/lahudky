@@ -5,7 +5,7 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import Stripe from "stripe";
 import { Pool } from "pg";
-import { createHash, randomBytes, randomInt } from "crypto";
+import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from "crypto";
 import { Vonage } from "@vonage/server-sdk";
 import { Channels } from "@vonage/messages";
 import QRCode from "qrcode";
@@ -21,6 +21,7 @@ const {
   DATABASE_URL,
   RESEND_API_KEY,
   EMAIL_FROM,
+  OPENROUTESERVICE_API_KEY,
   FRONTEND_URL, // např. https://prima-lahudky.cz  (bez lomítka na konci)
   PORT = 3001,
 } = process.env;
@@ -52,6 +53,76 @@ const db = new Pool({ connectionString: DATABASE_URL });
 const BANK_ACCOUNT_HOLDER = "Martina Dupáková";
 const BANK_ACCOUNT = "229310381/0300";
 const BANK_IBAN = "CZ7203000000000229310381";
+const DELIVERY_LOCATIONS = {
+  "nove-lazne": { label: "U Nových lázní", address: "U Nových lázní 1593/16, 415 01 Teplice" },
+  masarykova: { label: "Masarykova třída", address: "Masarykova třída 429/26, 415 01 Teplice" },
+};
+const deliveryQuoteSecret = createHash("sha256").update(`${DATABASE_URL}:${VONAGE_API_SECRET}`).digest();
+const deliveryOriginCache = new Map();
+const normalizeAddress = (value) => value.trim().replace(/\s+/g, " ").toLocaleLowerCase("cs-CZ");
+const addressHash = (value) => createHash("sha256").update(normalizeAddress(value)).digest("hex");
+
+async function geocodeDeliveryAddress(address) {
+  const url = new URL("https://api.openrouteservice.org/geocode/search");
+  url.searchParams.set("text", address);
+  url.searchParams.set("boundary.country", "CZ");
+  url.searchParams.set("size", "1");
+  const response = await fetch(url, {
+    headers: { Authorization: OPENROUTESERVICE_API_KEY },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) throw new Error(`Geocoding request failed (${response.status})`);
+  const result = await response.json();
+  const coordinates = result.features?.[0]?.geometry?.coordinates;
+  if (!Array.isArray(coordinates) || coordinates.length !== 2 || !coordinates.every(Number.isFinite)) return null;
+  return coordinates;
+}
+
+async function getDeliveryOrigin(pickupStore) {
+  if (deliveryOriginCache.has(pickupStore)) return deliveryOriginCache.get(pickupStore);
+  const coordinates = await geocodeDeliveryAddress(DELIVERY_LOCATIONS[pickupStore].address);
+  if (!coordinates) throw new Error("Pickup store address could not be geocoded");
+  deliveryOriginCache.set(pickupStore, coordinates);
+  return coordinates;
+}
+
+async function calculateDeliveryDistance(address, pickupStore) {
+  const destination = await geocodeDeliveryAddress(address);
+  if (!destination) return null;
+  const origin = await getDeliveryOrigin(pickupStore);
+  const url = new URL("https://api.openrouteservice.org/v2/directions/driving-car");
+  url.searchParams.set("start", `${origin[0]},${origin[1]}`);
+  url.searchParams.set("end", `${destination[0]},${destination[1]}`);
+  const response = await fetch(url, {
+    headers: { Authorization: OPENROUTESERVICE_API_KEY },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) throw new Error(`Routing request failed (${response.status})`);
+  const result = await response.json();
+  const distanceMeters = result.features?.[0]?.properties?.summary?.distance;
+  return Number.isFinite(distanceMeters) && distanceMeters >= 0 ? distanceMeters : null;
+}
+
+function createDeliveryQuoteToken({ address, pickupStore, distanceMeters }) {
+  const payload = Buffer.from(JSON.stringify({ addressHash: addressHash(address), pickupStore, distanceMeters, createdAt: Date.now() })).toString("base64url");
+  const signature = createHmac("sha256", deliveryQuoteSecret).update(payload).digest("hex");
+  return `${payload}.${signature}`;
+}
+
+function readDeliveryQuoteToken(token, address, pickupStore) {
+  if (typeof token !== "string" || token.length > 2000) return null;
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra !== undefined || !/^[a-f0-9]{64}$/.test(signature)) return null;
+  const expectedSignature = createHmac("sha256", deliveryQuoteSecret).update(payload).digest();
+  if (!timingSafeEqual(Buffer.from(signature, "hex"), expectedSignature)) return null;
+  try {
+    const quote = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (quote.addressHash !== addressHash(address) || quote.pickupStore !== pickupStore || !Number.isFinite(quote.distanceMeters) || quote.distanceMeters < 0 || !Number.isFinite(quote.createdAt) || Date.now() - quote.createdAt > 15 * 60 * 1000) return null;
+    return { distanceMeters: quote.distanceMeters, fee: quote.distanceMeters <= 10_000 ? 150 : 200 };
+  } catch {
+    return null;
+  }
+}
 
 await db.query(`CREATE TABLE IF NOT EXISTS orders (
   id BIGSERIAL PRIMARY KEY,
@@ -91,6 +162,13 @@ const orderRequestLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Bylo odesláno příliš mnoho objednávek. Zkuste to prosím za chvíli." },
+});
+const deliveryQuoteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Výpočet dopravy se opakuje příliš často. Zkuste to prosím za chvíli." },
 });
 const confirmationLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -221,11 +299,29 @@ app.post("/api/create-checkout-session", orderRequestLimiter, async (req, res) =
   }
 });
 
+app.post("/api/delivery-quote", deliveryQuoteLimiter, async (req, res) => {
+  const { address, pickupStore } = req.body ?? {};
+  if (!OPENROUTESERVICE_API_KEY) return res.status(503).json({ error: "Automatický výpočet dopravy ještě není nastavený. Zkuste objednávku později nebo nám zavolejte." });
+  if (typeof address !== "string" || address.trim().length < 8 || address.length > 250 || !DELIVERY_LOCATIONS[pickupStore]) {
+    return res.status(400).json({ error: "Zadejte úplnou adresu včetně města nebo PSČ a vyberte prodejnu." });
+  }
+  try {
+    const distanceMeters = await calculateDeliveryDistance(address.trim(), pickupStore);
+    if (distanceMeters === null) return res.status(422).json({ error: "Adresu se nepodařilo najít. Doplňte prosím město a PSČ." });
+    const distanceKm = distanceMeters / 1000;
+    const fee = distanceMeters <= 10_000 ? 150 : 200;
+    res.set("Cache-Control", "no-store");
+    res.json({ distanceKm: Number(distanceKm.toFixed(1)), fee, quoteToken: createDeliveryQuoteToken({ address: address.trim(), pickupStore, distanceMeters }) });
+  } catch (err) {
+    console.error("Nepodařilo se vypočítat cenu dovozu:", err);
+    res.status(502).json({ error: "Mapovou službu se nepodařilo kontaktovat. Zkuste to prosím znovu." });
+  }
+});
 // Objednávky placené převodem nebo při osobním převzetí ukládáme do databáze
 // a nové objednávky posíláme prodejně přes SMS.
 app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
   try {
-    const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, fulfillmentMethod, pickupStore, deliveryAddress, deliveryDistance, note, items } = req.body;
+    const { customerName, customerPhone, customerEmail, requestedAt, paymentMethod, storePaymentMethod, fulfillmentMethod, pickupStore, deliveryAddress, deliveryQuoteToken, note, items } = req.body;
     const requestedTime = typeof requestedAt === "string" ? new Date(requestedAt) : null;
     if (
       typeof customerName !== "string" || customerName.trim().length < 2 || customerName.length > 120 ||
@@ -238,8 +334,8 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
       (paymentMethod === "bank_transfer" && storePaymentMethod !== undefined) ||
       !["pickup", "delivery"].includes(fulfillmentMethod) ||
       !["nove-lazne", "masarykova"].includes(pickupStore) ||
-      (fulfillmentMethod === "pickup" && (deliveryAddress !== undefined || deliveryDistance !== undefined)) ||
-      (fulfillmentMethod === "delivery" && (typeof deliveryAddress !== "string" || !deliveryAddress.trim() || deliveryAddress.length > 250 || !["within_10km", "over_10km"].includes(deliveryDistance) || paymentMethod !== "bank_transfer")) ||
+      (fulfillmentMethod === "pickup" && deliveryAddress !== undefined) ||
+      (fulfillmentMethod === "delivery" && (typeof deliveryAddress !== "string" || !deliveryAddress.trim() || deliveryAddress.length > 250 || typeof deliveryQuoteToken !== "string" || paymentMethod !== "bank_transfer")) ||
       (note !== undefined && (typeof note !== "string" || note.length > 1000)) ||
       !Array.isArray(items) || items.length === 0 || items.length > 50 ||
       items.some((item) => !item || typeof item.id !== "string" || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99 || !getProductById(item.id) || (getProductById(item.id).id.includes("chlebicek") && !["namazany", "se-salatem"].includes(item.preparation)) || (item.preparation !== undefined && (!getProductById(item.id).id.includes("chlebicek") || !["namazany", "se-salatem"].includes(item.preparation))))
@@ -250,18 +346,21 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
       return res.status(503).json({ error: "Potvrzovací e-maily ještě nejsou nastavené. Zkuste objednávku později nebo nám zavolejte." });
     }
 
+    const deliveryQuote = fulfillmentMethod === "delivery" ? readDeliveryQuoteToken(deliveryQuoteToken, deliveryAddress.trim(), pickupStore) : null;
+    if (fulfillmentMethod === "delivery" && !deliveryQuote) return res.status(400).json({ error: "Adresa se změnila nebo vypršel výpočet dopravy. Zadejte ji znovu a počkejte na nový výpočet." });
     const orderItems = items.map((item) => {
       const product = getProductById(item.id);
       return { product, quantity: item.quantity };
     });
-    const deliveryFee = fulfillmentMethod === "delivery" ? (deliveryDistance === "within_10km" ? 150 : 200) : 0;
+    const deliveryFee = deliveryQuote?.fee ?? 0;
+    const deliveryDistanceLabel = deliveryQuote ? `${(deliveryQuote.distanceMeters / 1000).toFixed(1)} km` : null;
     const total = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0) + deliveryFee;
     const itemsSummary = orderItems.map(({ product, quantity }, index) => `${product.name}${items[index].preparation ? ` (${items[index].preparation === "namazany" ? "namazaný" : "se salátem"})` : ""} x${quantity}`).join(", ");
     const requestedLabel = new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "short", timeStyle: "short" }).format(requestedTime);
     const locationLabels = { "nove-lazne": "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice", masarykova: "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice" };
     const fulfillmentLabel = fulfillmentMethod === "pickup"
       ? `Vyzvednutí: ${locationLabels[pickupStore]}`
-      : `Výchozí prodejna: ${locationLabels[pickupStore]}\nDovoz: ${deliveryAddress.trim()} (${deliveryDistance === "within_10km" ? "do 10 km" : "nad 10 km"}, doprava ${deliveryFee} Kč)`;
+      : `Výchozí prodejna: ${locationLabels[pickupStore]}\nDovoz: ${deliveryAddress.trim()} (${deliveryDistanceLabel}, doprava ${deliveryFee} Kč)`;
     const paymentLabel = paymentMethod === "bank_transfer"
       ? "Bankovní převod – čeká na potvrzení a připsání"
       : "Platba kartou při převzetí na prodejně";
@@ -273,7 +372,7 @@ app.post("/api/create-order-request", orderRequestLimiter, async (req, res) => {
     await db.query(
       `INSERT INTO orders (order_code, confirmation_token_hash, confirmation_expires_at, customer_name, customer_phone, customer_email, requested_at, payment_method, store_payment_method, items, total_czk, note, fulfillment_method, pickup_store, delivery_address, delivery_distance, delivery_fee_czk)
        VALUES ($1, $2, NOW() + INTERVAL '72 hours', $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16)`,
-      [orderCode, tokenHash, customerName.trim(), customerPhone.trim(), customerEmail.trim(), requestedTime.toISOString(), paymentMethod, storePaymentMethod ?? null, JSON.stringify(savedItems), total, note?.trim() || null, fulfillmentMethod, pickupStore ?? null, deliveryAddress?.trim() ?? null, deliveryDistance ?? null, deliveryFee]
+      [orderCode, tokenHash, customerName.trim(), customerPhone.trim(), customerEmail.trim(), requestedTime.toISOString(), paymentMethod, storePaymentMethod ?? null, JSON.stringify(savedItems), total, note?.trim() || null, fulfillmentMethod, pickupStore ?? null, deliveryAddress?.trim() ?? null, deliveryDistanceLabel, deliveryFee]
     );
     const confirmationUrl = `${FRONTEND_ORIGIN}/potvrdit-objednavku/${confirmationToken}`;
     const body = [
@@ -403,7 +502,7 @@ app.post("/api/order-confirmation/:token/confirm", confirmationLimiter, async (r
     const locationLabels = { "nove-lazne": "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice", masarykova: "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice" };
     const fulfillmentLabel = order.fulfillment_method === "pickup"
       ? `Vyzvednutí: ${locationLabels[order.pickup_store] ?? order.pickup_store}`
-      : `Výchozí prodejna: ${locationLabels[order.pickup_store] ?? order.pickup_store}\nDovoz: ${order.delivery_address} (${order.delivery_distance === "within_10km" ? "do 10 km" : "nad 10 km"}, doprava ${order.delivery_fee_czk} Kč)`;
+      : `Výchozí prodejna: ${locationLabels[order.pickup_store] ?? order.pickup_store}\nDovoz: ${order.delivery_address} (${order.delivery_distance}, doprava ${order.delivery_fee_czk} Kč)`;
     const emailText = [
       `Dobrý den, ${order.customer_name},`, "",
       `potvrzujeme objednávku ${order.order_code} a přijetí platby.`,

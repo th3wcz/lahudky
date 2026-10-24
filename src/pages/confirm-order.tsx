@@ -17,7 +17,7 @@ type Order = {
   fulfillment_method: "pickup" | "delivery";
   pickup_store: string | null;
   delivery_address: string | null;
-  delivery_distance: "within_10km" | "over_10km" | null;
+  delivery_distance: string | null;
   delivery_fee_czk: number;
   note: string | null;
   confirmation_expires_at: string;
@@ -86,7 +86,7 @@ export default function ConfirmOrder() {
               <p><strong>E-mail:</strong> {order.customer_email}</p>
               <p><strong>Termín:</strong> {new Intl.DateTimeFormat("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "full", timeStyle: "short" }).format(new Date(order.requested_at))}</p>
               <p><strong>Platba:</strong> Bankovní převod (variabilní symbol {order.order_code.replace("LP-", "")})</p>
-              {order.fulfillment_method === "pickup" ? <p><strong>Vyzvednutí:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice" : "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice"}</p> : <><p><strong>Výchozí prodejna:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní" : "Masarykova třída"}</p><p><strong>Dovoz:</strong> {order.delivery_address} ({order.delivery_distance === "within_10km" ? "do 10 km" : "nad 10 km"})</p></>}
+              {order.fulfillment_method === "pickup" ? <p><strong>Vyzvednutí:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní — U Nových lázní 1593/16, 415 01 Teplice" : "Masarykova třída — Masarykova třída 429/26, 415 01 Teplice"}</p> : <><p><strong>Výchozí prodejna:</strong> {order.pickup_store === "nove-lazne" ? "U Nových lázní" : "Masarykova třída"}</p><p><strong>Dovoz:</strong> {order.delivery_address} ({order.delivery_distance})</p></>}
             </div>
             <div className="mt-5 divide-y divide-border rounded-xl border border-border px-4">
               {order.items.map((item, index) => <div key={`${item.name}-${index}`} className="flex justify-between gap-4 py-3 text-sm"><span>{item.name}{item.preparation ? ` · ${item.preparation}` : ""} × {item.quantity}</span><span className="whitespace-nowrap">{money(item.unitPrice * item.quantity)} Kč</span></div>)}
