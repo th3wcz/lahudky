@@ -572,7 +572,7 @@ export default function Eshop() {
               data-testid={`card-product-${group.id}`}
               className="overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className={`relative ${selectedProduct.category === "oblozene-misy" ? (selectedProduct.image === "oblozena-misa-5" ? "aspect-[3/4]" : "aspect-[4/3]") : "aspect-square"} overflow-hidden ${selectedProduct.category === "oblozene-misy" ? "bg-[#f5f3ee]" : "bg-white"}`}>
+              <div className={`relative ${selectedProduct.category === "oblozene-misy" ? "aspect-[4/3]" : "aspect-square"} overflow-hidden ${selectedProduct.category === "oblozene-misy" ? "bg-[#f5f3ee]" : "bg-white"}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.img
                     key={selectedProduct.id}
