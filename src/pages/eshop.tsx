@@ -572,7 +572,7 @@ export default function Eshop() {
               data-testid={`card-product-${group.id}`}
               className="overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className={`relative aspect-square overflow-hidden ${selectedProduct.category === "oblozene-misy" ? "bg-[#f5f3ee]" : "bg-white"}`}>
+              <div className={`relative ${selectedProduct.category === "oblozene-misy" ? "aspect-[4/3]" : "aspect-square"} overflow-hidden ${selectedProduct.category === "oblozene-misy" ? "bg-[#f5f3ee]" : "bg-white"}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.img
                     key={selectedProduct.id}
@@ -583,7 +583,7 @@ export default function Eshop() {
                     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                     exit={{ opacity: 0, scale: 0.985 }}
                     transition={{ duration: 0.24, ease: "easeOut" }}
-                    className={`absolute inset-0 h-full w-full ${selectedProduct.category === "oblozene-misy" ? "object-contain p-1" : "object-cover"}`}
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 </AnimatePresence>
               </div>
