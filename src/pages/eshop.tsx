@@ -28,6 +28,10 @@ type Product = {
   price: number;
   unit: string;
   category: string;
+  groupId?: string;
+  groupTitle?: string;
+  image?: string;
+  variantLabel?: string;
 };
 
 const products = catalogProducts as Product[];
@@ -35,6 +39,7 @@ type ProductGroup = { id: string; title: string; products: Product[] };
 
 function groupInfo(product: Product): { id: string; title: string } {
   const id = product.id;
+  if (product.groupId && product.groupTitle) return { id: product.groupId, title: product.groupTitle };
   if (id.startsWith("chlebicek-")) return { id: "chlebicky-standard", title: "Chlebíčky" };
   if (id.startsWith("bageta-")) return { id: "bagety-standard", title: "Bagety" };
   if (id.startsWith("fr-bageta-")) return { id: "bagety-francouzske", title: "Francouzské bagety" };
@@ -48,7 +53,6 @@ function groupInfo(product: Product): { id: string; title: string } {
   if (id.startsWith("houska-") || id.startsWith("cerealni-houska-")) return { id: "housky", title: "Housky" };
   if (id.startsWith("pomazanka-")) return { id: "pomazanky", title: "Pomazánky" };
   if (id.startsWith("salat-")) return { id: "salaty", title: "Saláty" };
-  if (id.startsWith("miska-")) return { id: "oblozene-misy", title: "Obložené mísy" };
   return { id, title: product.name };
 }
 
@@ -67,12 +71,13 @@ const categoryNames: Record<string, string> = {
   pomazanky: "Pomazánky",
   salaty: "Saláty",
   smazene: "Smažené speciality",
+  "oblozene-misy": "Obložené mísy",
 };
-const productImageUrl = (id: string) => `${import.meta.env.BASE_URL}products/${id}.webp`;
+const productImageUrl = (product: Product) => `${import.meta.env.BASE_URL}products/${product.image ?? product.id}.webp`;
 const categories = ["Vše", ...Array.from(new Set(products.map((product) => product.category)))];
 const categoryCards = categories
   .filter((category) => category !== "Vše")
-  .map((category) => ({ category, products: products.filter((product) => product.category === category) }))
+  .map((category) => ({ category, products: Array.from(new Map(products.filter((product) => product.category === category).map((product) => [product.image ?? product.id, product])).values()) }))
   .filter((card) => card.products.length > 0);
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("cs");
 const formatPrice = (price: number) => new Intl.NumberFormat("cs-CZ").format(price);
@@ -180,7 +185,7 @@ export default function Eshop() {
       const image = new Image();
       image.onload = () => resolve();
       image.onerror = () => resolve();
-      image.src = productImageUrl(product.id);
+      image.src = productImageUrl(product);
       if (image.complete) resolve();
     }))).then(() => {
       if (!cancelled) timeout = window.setTimeout(() => setCategoryImageStep(nextStep), 6500);
@@ -204,9 +209,14 @@ export default function Eshop() {
 
   const filtered = useMemo(() => {
     const query = normalize(search.trim());
-    if (query) return products
-      .filter((product) => (activeCategory === "Vše" || product.category === activeCategory) && normalize(`${product.name} ${product.category} ${product.unit}`).includes(query))
-      .map((product) => ({ id: product.id, title: product.name, products: [product] }));
+    if (query) {
+      const matches = products.filter((product) => (activeCategory === "Vše" || product.category === activeCategory) && normalize(`${product.name} ${product.category} ${product.unit} ${product.variantLabel ?? ""}`).includes(query));
+      const matchingBowlGroups = new Set(matches.filter((product) => product.category === "oblozene-misy" && product.groupId).map((product) => product.groupId!));
+      return [
+        ...matches.filter((product) => product.category !== "oblozene-misy").map((product) => ({ id: product.id, title: product.name, products: [product] })),
+        ...groupedProducts.filter((group) => matchingBowlGroups.has(group.id)),
+      ];
+    }
     return groupedProducts.filter((group) => activeCategory === "Vše" || group.products.some((product) => product.category === activeCategory));
   }, [activeCategory, search]);
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -468,7 +478,7 @@ export default function Eshop() {
                     <AnimatePresence initial={false} mode="sync">
                       <motion.img
                         key={representative.id}
-                        src={productImageUrl(representative.id)}
+                        src={productImageUrl(representative)}
                         alt=""
                         loading={categoryImageStep === 0 ? "eager" : "lazy"}
                         decoding="async"
@@ -562,18 +572,18 @@ export default function Eshop() {
               data-testid={`card-product-${group.id}`}
               className="overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="relative aspect-square overflow-hidden bg-white">
+              <div className={`relative aspect-square overflow-hidden ${selectedProduct.category === "oblozene-misy" ? "bg-[#f5f3ee]" : "bg-white"}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.img
                     key={selectedProduct.id}
-                    src={productImageUrl(selectedProduct.id)}
-                    alt={`${selectedProduct.name} – ilustrační fotografie`}
+                    src={productImageUrl(selectedProduct)}
+                    alt={`${group.title} – fotografie`}
                     loading="lazy"
                     initial={{ opacity: 0, scale: 1.035, filter: "blur(4px)" }}
                     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                     exit={{ opacity: 0, scale: 0.985 }}
                     transition={{ duration: 0.24, ease: "easeOut" }}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className={`absolute inset-0 h-full w-full ${selectedProduct.category === "oblozene-misy" ? "object-contain p-1" : "object-cover"}`}
                   />
                 </AnimatePresence>
               </div>
@@ -590,7 +600,7 @@ export default function Eshop() {
                         aria-label={`Varianta: ${group.title}`}
                         className="mt-1 w-full rounded-md border border-input bg-white px-2 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                       >
-                        {group.products.map((product) => <option key={product.id} value={product.id}>{product.name} · {formatPrice(product.price)} Kč / {product.unit}</option>)}
+                        {group.products.map((product) => <option key={product.id} value={product.id}>{product.variantLabel ? `${product.variantLabel} · ${formatPrice(product.price)} Kč` : `${product.name} · ${formatPrice(product.price)} Kč / ${product.unit}`}</option>)}
                       </select>
                     </label>
                   ) : (
@@ -610,7 +620,7 @@ export default function Eshop() {
                     <label className="flex items-center gap-1.5 rounded-md border border-border px-2 py-2"><input type="radio" name={`prep-${selectedProduct.id}`} checked={preparation === "se-salatem"} onChange={() => setChlebicekPreparations((current) => ({ ...current, [selectedProduct.id]: "se-salatem" }))} /> Se salátem</label>
                   </div>
                 </fieldset>}
-                <p className="mt-2 text-sm font-bold text-primary">{formatPrice(selectedProduct.price)} Kč <span className="font-normal text-foreground/50">/ {selectedProduct.unit}</span></p>
+                <p className="mt-2 text-sm font-bold text-primary">{formatPrice(selectedProduct.price)} Kč <span className="font-normal text-foreground/50">{selectedProduct.category === "oblozene-misy" ? `za mísu (${selectedProduct.variantLabel}; 390 Kč/kg)` : `/ ${selectedProduct.unit}`}</span></p>
                 <p className="mt-1 text-xs font-medium text-foreground/60">Za {orderQuantity}×: {formatPrice(selectedProduct.price * orderQuantity)} Kč</p>
                 {selectedQuantity > 0 && <p className="mt-2 text-xs text-foreground/55">V košíku: {selectedQuantity}×</p>}
                 <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">

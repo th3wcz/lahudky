@@ -10,3 +10,4 @@ dist/
 server/.env
 server/.env.*
 !server/.env.example
+misy_source/
