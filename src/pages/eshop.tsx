@@ -73,7 +73,7 @@ const categoryNames: Record<string, string> = {
   smazene: "Smažené speciality",
   "oblozene-misy": "Obložené mísy",
 };
-const productImageUrl = (product: Product) => `${import.meta.env.BASE_URL}products/${product.image ?? product.id}.webp`;
+const productImageUrl = (product: Product) => { const image = product.image ?? product.id; return `${import.meta.env.BASE_URL}products/${image}${/\.(?:webp|jpe?g|png)$/i.test(image) ? "" : ".webp"}`; };
 const categories = ["Vše", ...Array.from(new Set(products.map((product) => product.category)))];
 const categoryCards = categories
   .filter((category) => category !== "Vše")
