@@ -489,6 +489,7 @@ export default function Eshop() {
                         className="absolute inset-0 h-full w-full object-contain"
                       />
                     </AnimatePresence>
+                    {representative.image?.endsWith(".jpg") && <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-gradient-to-b from-[#faf9f6] via-[#faf9f6]/65 to-transparent" />}
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-semibold leading-snug text-foreground">{categoryNames[category] ?? category}</h3>
@@ -586,6 +587,7 @@ export default function Eshop() {
                     className="absolute inset-0 h-full w-full object-contain"
                   />
                 </AnimatePresence>
+                {selectedProduct.image?.endsWith(".jpg") && <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-gradient-to-b from-[#faf9f6] via-[#faf9f6]/65 to-transparent" />}
               </div>
               <div className="p-3 sm:p-4">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary">{categoryNames[activeCategory === "Vše" ? selectedProduct.category : activeCategory] ?? selectedProduct.category}</p>
