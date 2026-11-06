@@ -38,22 +38,10 @@ const products = catalogProducts as Product[];
 type ProductGroup = { id: string; title: string; products: Product[] };
 
 function groupInfo(product: Product): { id: string; title: string } {
-  const id = product.id;
-  if (product.groupId && product.groupTitle) return { id: product.groupId, title: product.groupTitle };
-  if (id.startsWith("chlebicek-")) return { id: "chlebicky-standard", title: "Chlebíčky" };
-  if (id.startsWith("bageta-")) return { id: "bagety-standard", title: "Bagety" };
-  if (id.startsWith("fr-bageta-")) return { id: "bagety-francouzske", title: "Francouzské bagety" };
-  if (id.startsWith("cerealni-bageta-")) return { id: "bagety-cerealni", title: "Cereální bagety" };
-  if (id.startsWith("zitny-chleb-")) return { id: "chleby-zitne", title: "Žitné chleby" };
-  if (id.startsWith("tortilla-")) return { id: "tortilly", title: "Tortilly" };
-  if (id.startsWith("palacinka-")) return { id: "palacinky", title: "Palačinky" };
-  if (id.startsWith("croissant-")) return { id: "croissanty", title: "Croissanty" };
-  if (id.startsWith("chleb-")) return { id: "chleby-oblozene", title: "Obložené chleby" };
-  if (id.startsWith("sendvic-")) return { id: "sendvice", title: "Sendviče" };
-  if (id.startsWith("houska-") || id.startsWith("cerealni-houska-")) return { id: "housky", title: "Housky" };
-  if (id.startsWith("pomazanka-")) return { id: "pomazanky", title: "Pomazánky" };
-  if (id.startsWith("salat-")) return { id: "salaty", title: "Saláty" };
-  return { id, title: product.name };
+  if (product.category === "oblozene-misy" && product.groupId && product.groupTitle) {
+    return { id: product.groupId, title: product.groupTitle };
+  }
+  return { id: product.id, title: product.name };
 }
 
 const groupedProducts = products.reduce<ProductGroup[]>((groups, product) => {
@@ -605,15 +593,7 @@ export default function Eshop() {
                         {group.products.map((product) => <option key={product.id} value={product.id}>{product.variantLabel ? `${product.variantLabel} · ${formatPrice(product.price)} Kč` : `${product.name} · ${formatPrice(product.price)} Kč / ${product.unit}`}</option>)}
                       </select>
                     </label>
-                  ) : (
-                    <div className="text-xs font-medium text-foreground/65">
-                      <span>Varianta</span>
-                      <div className="mt-1 flex min-h-[38px] items-center justify-between rounded-md border border-border bg-muted/30 px-3 text-sm text-foreground/60">
-                        <span>Jediná varianta</span>
-                        <CheckCircle2 size={15} className="text-primary/60" aria-hidden="true" />
-                      </div>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
                 {preparation && <fieldset className="mt-2">
                   <legend className="text-xs font-medium text-foreground/65">Provedení chlebíčku</legend>
